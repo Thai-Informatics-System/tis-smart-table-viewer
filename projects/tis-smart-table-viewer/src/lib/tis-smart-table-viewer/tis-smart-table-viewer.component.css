@@ -1,0 +1,59 @@
+::ng-deep .sub-main-content {
+    border: 0px solid #f00;
+    margin-top: 56px;
+    height: calc(100% - 56px);
+    padding: 15px;
+    overflow: auto;
+}
+
+.header-title {
+    margin-top: 8px;
+    padding: 7px 10px;
+    color: #969a9c;
+}
+
+.header-title h3 {
+    font-size: 20px !important;
+    font-weight: bold;
+}
+
+.header-menu {
+    border: 0px solid red;
+    background: #fff;
+    margin-top: 1px;
+    margin-bottom: 0px;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.mat-mdc-table-sticky-border-elem-right {
+    border-left: 1px solid #e0e0e087;
+}
+
+.mat-mdc-table-sticky-border-elem-left {
+    border-right: 1px solid #e0e0e087;
+}
+
+.search-mat-form-field {
+    width: 100%;
+}
+
+.filter-applied-section {
+    overflow: auto;
+}
+
+/* Extra small devices (portrait phones, less than 576px) */
+@media (max-width: 575.98px) {
+    .search-mat-form-field {
+        width: 100% !important;
+    }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .search-mat-form-field {
+        width: 100% !important;
+    }
+}

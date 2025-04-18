@@ -1,0 +1,24 @@
+<ng-container *transloco="let t; read: 'shared.tisColumnsBtnComponent'">
+    <button mat-flat-button class="tis-text-upper tis-bg-light" [matMenuTriggerFor]="menu">
+        <mat-icon>view_week</mat-icon>
+        <span class="flex flex-row align-center">
+            {{selectedTemplate?.name}}
+            <mat-icon class="tis-expansion-icon">arrow_drop_down</mat-icon>
+        </span>
+    </button>
+    <mat-menu #menu="matMenu" class="tis-mat-menu">
+        <button mat-menu-item (click)="selectedTemplate?.id != -1 ? onSelectedTemplate(-1) : null">
+            <mat-icon>{{selectedTemplate?.id == -1 ? 'done': ''}}</mat-icon>
+            Default
+            <!-- <mat-icon class="absolute right-0 delete">delete</mat-icon> -->
+        </button>
+        <button mat-menu-item *ngFor="let template of templates" (click)="onSelectedTemplate(template?.id)">
+            <mat-icon>{{template?.id == selectedTemplate?.id ? 'done': ''}}</mat-icon>
+            <span class="pr-16">{{template.name}}</span>
+            <mat-icon class="absolute right-0 delete" (click)="isDeleteTemplate = true">delete</mat-icon>
+            <mat-icon class="absolute right-8 edit" (click)="isEditTemplate = true">edit</mat-icon>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item class="tis-text-upper active" (click)="createNewTemplateDialog()"><mat-icon>add</mat-icon> {{t('createNewView')}}</button>
+    </mat-menu>
+</ng-container>

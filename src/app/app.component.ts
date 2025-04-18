@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { TisSmartTableViewerModule } from 'tis-smart-table-viewer';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, TisSmartTableViewerModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

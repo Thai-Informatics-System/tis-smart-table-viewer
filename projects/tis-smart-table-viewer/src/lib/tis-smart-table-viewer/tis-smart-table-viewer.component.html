@@ -1,0 +1,279 @@
+<section [class.tis-page]="!hideHeader">
+    <div class="tis-page-header" *ngIf="!hideHeader">
+        <nav aria-label="tis-breadcrumb">
+            <ol class="tis-breadcrumb">
+                <li class="tis-breadcrumb-item"><a href="javascript:;" [routerLink]="homeUrl">{{t('home')}}</a></li>
+                @for(breadcrumb of breadcrumbs; track breadcrumb) {
+                    <li class="tis-breadcrumb-item" *ngIf="breadcrumb?.url">
+                        <a href="javascript:;" (click)="goToUrl(breadcrumb.url)">{{breadcrumb?.name}}</a>
+                    </li>
+                }
+                <li class="tis-breadcrumb-item active">
+                    {{mainTitle}}
+                </li>
+            </ol>
+        </nav>
+        <ng-content select="[slot='top-buttons-section']"></ng-content>
+    </div>
+    <h1 class="tis-page-title" *ngIf="!hideHeader">{{mainTitle}}</h1>
+    <div class="tis-page-body">
+        <div class="tis-page-body-content">
+
+            @if(initialLoading){
+            <div class="tis-d-flex tis-justify-content-center pb-2 pt-7">
+                <mat-progress-spinner color="primary" mode="indeterminate" [diameter]="60"></mat-progress-spinner>
+            </div>
+            } @else {
+
+                @if ((dataSource?.totalDataLength$ | async) || (dataSource?.loading$ | async) || search ||
+                filterHasNonEmptyValue || showFilterButtonSection) {
+                    <div class="tis-table-container">
+                        @if(!hideTableHeader){
+                            <div class="tis-table-container-header">
+                                <ul class="tis-inline-group">
+                                    <li class="tis-inline-group-item">
+                                        <tis-columns-btn [t]="t"
+                                            [componentName]="componentName" [defaultColumns]="defaultColumns" [columns]="columns"
+                                            (displayedColumnsChange)="onChangeDisplayColumns($event)"
+                                            (fromStartColumnNumberChange)="onChangeFromStartColumnNumber($event)"
+                                            (fromEndColumnNumberChange)="onChangeFromEndColumnNumber($event)"></tis-columns-btn>
+                                    </li>
+                                    <ng-content select="[slot='filter-button-section']"></ng-content>
+                                </ul>
+                                <div class="flex items-center">
+                                    <ul class="tis-inline-group">
+                                        <ng-content select="[slot='filter-right-button-section']"></ng-content>
+                                    </ul>
+                                    @if(!isMobile && searchPlaceholder && searchPlaceholder != ''){
+                                        <mat-form-field
+                                            class="custom-mat-form-field-mb-0 search-mat-form-field ml-3 tis-table-search-field"
+                                            appearance="outline">
+                                            <span class="material-icons" matPrefix>search</span>
+                                            <input matInput [formControl]="searchCtrl" [placeholder]="searchPlaceholder">
+                                            <span class="material-icons mr-2 tis-curser-pointer" matSuffix
+                                                (click)="searchCtrl.setValue('')"
+                                                *ngIf="searchCtrl.value && searchCtrl.value != ''">close</span>
+                                        </mat-form-field>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        @if (filterFormGroup) {
+
+                            <ng-content select="[slot='filter-form-section']"></ng-content>
+
+                            @if(finalSelectedFilterValuesToDisplay.length && filterApplied) {
+                                <div class="flex gap-3 mb-3 filter-applied-section md-hide-scrollbar">
+                                    @for(v of finalSelectedFilterValuesToDisplay; track v) {
+                                        @if (v) {
+                                            <span class="tis-filter-badge" style="white-space: nowrap;">
+                                                @if(v.labelKey && v.labelKey != '' && (v.valueKey || v.value)) {
+                                                <span class="font-semibold"> {{v.labelKey }} </span>
+                                                }
+                                                @if(v.valueKey) {
+                                                    {{v.valueKey }}
+                                                } @else {
+                                                    {{v.value }}
+                                                }
+                                                <span class="material-icons tis-curser-pointer"
+                                                    (click)="removeParticularFilter(v)">cancel</span>
+                                            </span>
+                                        }
+                                    }
+                                </div>
+                            }
+                        }
+
+                        @if(isMobile && searchPlaceholder && searchPlaceholder != ''){
+                            <mat-form-field
+                                class="custom-mat-form-field-mb-0 search-mat-form-field mb-3 tis-table-search-field"
+                                appearance="outline">
+                                <span class="material-icons" matPrefix>search</span>
+                                <input matInput [formControl]="searchCtrl" [placeholder]="searchPlaceholder">
+                                <span class="material-icons mr-2 tis-curser-pointer" matSuffix
+                                    (click)="searchCtrl.setValue('')"
+                                    *ngIf="searchCtrl.value && searchCtrl.value != ''">close</span>
+                            </mat-form-field>
+                        }
+
+                        
+                        @if(loaderPosition == 'top'){
+                            @if(dataSource?.loading$ | async){
+                                <div class="tis-d-flex tis-justify-content-center py-2">
+                                    <mat-progress-spinner color="primary" mode="indeterminate" [diameter]="loadingSpinnerDiameter"></mat-progress-spinner>
+                                </div>
+                            }
+                        }
+                        <div class="tis-table-container-body">
+                            <div class="tis-table-wrapper" [appScrolling]="true">
+
+                                <!--Table Here-->
+                                <table mat-table matSort [dataSource]="dataSource" class="tis-table" cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListLockAxis]="'y'">
+
+                                    @if (enableRowsSelection) {
+                                        <ng-container matColumnDef="Select">
+                                            <th mat-header-cell *matHeaderCellDef>
+                                                @if (enableAllRowsSelection) {
+                                                    <mat-checkbox color="primary" (change)="$event ? toggleAllRows() : null"
+                                                                [checked]="isAllRowsSelected"
+                                                                [indeterminate]="selection.hasValue() && !isAllRowsSelected">
+                                                    </mat-checkbox>
+                                                }
+                                            </th>
+                                            <td mat-cell *matCellDef="let row">
+                                                <mat-checkbox color="primary" (click)="stopPropagation($event)" (change)="$event ? toggleSelection($event, row) : null" [checked]="isChecked(row)"></mat-checkbox>
+                                            </td>
+                                        </ng-container>
+                                    }
+
+                                    @for(column of autoRenderColumns; track column.serverKeyCode; let i = $index; let l = $last){
+                                        <!-- [sticky]="i < startStickyColumnCount" [stickyEnd]="i > (autoRenderColumns?.length - endStickyColumnCount)" -->
+                                        <ng-container [matColumnDef]="column.name" [sticky]="isStickyStart(column.name)" [stickyEnd]="isStickyEnd(column.name)">
+                                            @if(column.sort) {
+                                                <th mat-header-cell mat-sort-header *matHeaderCellDef [ngClass]="getColumnClasses(column)">
+                                                    {{ t(column.name) }}
+                                                </th>
+                                            } @else {
+                                                <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
+                                                    {{ t(column.name) }}
+                                                </th>
+                                            }
+                                            
+
+                                            @if(column.type == 'date'){
+                                                <td mat-cell *matCellDef="let element"  class="1al-{{column.align}} 1ty-{{column.type}}" >
+                                                    <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
+                                                        {{ (column.valueKey && element[column.valueKey]) ? (getNestedValue(element, column.valueKey) | tisDate) : ''}}
+                                                    </p>
+                                                </td>
+                                            } @else if(column.type == 'date-time'){
+                                                <td mat-cell *matCellDef="let element" class="2al-{{column.align}} 2ty-{{column.type}}">
+                                                    <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
+                                                        {{ (column.valueKey && element[column.valueKey]) ? (getNestedValue(element, column.valueKey) | tisDateTime) : ''}}
+                                                    </p>
+                                                </td>
+                                            } @else if(column.type == 'date-time-with-seconds'){
+                                                <td mat-cell *matCellDef="let element" class="2al-{{column.align}} 2ty-{{column.type}}">
+                                                    <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
+                                                        {{ (column.valueKey && element[column.valueKey]) ? (getNestedValue(element, column.valueKey) | tisDateTimeWithSeconds) : ''}}
+                                                    </p>
+                                                </td>
+                                            } @else {
+                                                <td mat-cell *matCellDef="let element" class="3al-{{column.align}} 3ty-{{column.type}}" [ngClass]="getColumnClasses(column)">
+                                                        <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
+                                                            @if (column.type == 'quantity') {
+                                                                {{ (column.valueKey && element[column.valueKey]) ? (getNestedValue(element, column.valueKey) | number : '1.4-4') : '-' }}
+                                                            } @else if (column.type == 'money') {
+                                                                {{ column.valueKey && (getNestedValue(element, column.valueKey)).toFixed(2) }}
+                                                            } @else {
+                                                                {{ column.valueKey && getNestedValue(element, column.valueKey) }}
+                                                            }
+                                                        </p>
+                                                </td>
+                                            }
+                                        </ng-container>
+
+                                    }
+
+
+                                    @for(column of templateRenderColumns; track column.serverKeyCode; let i = $index; let l = $last){
+                                        <!-- [sticky]="i < startStickyColumnCount" [stickyEnd]="l" -->
+                                        <ng-container [matColumnDef]="column.name"  [sticky]="isStickyStart(column.name)" [stickyEnd]="isStickyEnd(column.name)">
+                                            @if(column.sort) {
+                                                <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="getColumnClasses(column)">
+                                                    {{ t(column.name) }}
+                                                </th>
+                                            } @else {
+                                                <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
+                                                    {{ t(column.name) }}
+                                                </th>
+                                            }
+                                            <td mat-cell *matCellDef="let element" class="4al-{{column.align}} 4ty-{{column.type}}" [ngClass]="getColumnClasses(column)">
+                                                <ng-container *ngIf="column.template as template">
+                                                    <ng-container *ngTemplateOutlet="template; context: { colDef: column, colData: element  }"></ng-container>
+                                                </ng-container>
+                                            </td>
+                                        </ng-container>
+                                    }
+
+                                    <!--Drag Column Def Start-->
+                                    <ng-container [matColumnDef]="'drag'" >
+                                        <th mat-header-cell *matHeaderCellDef>
+                                            --
+                                        </th>
+                                        <td mat-cell *matCellDef="let element" class="5al-drag 5ty-drag">
+                                            <mat-icon cdkDragHandle class="tis-curser-pointer" style="color: rgba(0, 0, 0, 0.54); font-size: 19px; width: 19px; height: 19px;">drag_indicator</mat-icon>
+                                        </td>
+                                    </ng-container>
+                                    <!--Drag Column Def End-->
+
+
+                                    <tr class="mat-row" *matNoDataRow>
+                                        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+                                            <div class="tis-data-not-found">
+                                                <img src="/assets/icons/not-found.svg" alt="not-found" class="w-53">
+                                                <h5 class="tis-h5">{{dataNotFoundConfig.title}}</h5>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                        <!-- Apply Drag and Drop to tbody -->
+                                    @if(enableDragNDrop) {
+                                        <tr mat-row *matRowDef="let row; columns: displayedColumns" [ngStyle]="{'background-color': getRowBackground(row) || 'inherit'}" cdkDrag></tr>
+                                    }
+
+                                    @if(!enableDragNDrop) {
+                                        <tr mat-row *matRowDef="let row; columns: displayedColumns" [ngStyle]="{'background-color': getRowBackground(row) || 'inherit'}"></tr>
+                                    }   
+                                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                                </table>
+                                <!--Table End-->
+
+                            </div>
+                            @if(loaderPosition == 'bottom'){
+                                @if(dataSource?.loading$ | async){
+                                    <div class="tis-d-flex tis-justify-content-center py-2">
+                                        <mat-progress-spinner color="primary" mode="indeterminate" [diameter]="loadingSpinnerDiameter"></mat-progress-spinner>
+                                    </div>
+                                }
+                            }
+                            @if (!hidePaginator) {
+                                <div class="tis-table-paginator">
+                                    <mat-paginator [length]="dataSource?.totalDataLength?.value" [pageSize]="pageSize"
+                                        [pageSizeOptions]="pageSizeOptions" showFirstLastButtons></mat-paginator>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                } @else {
+
+                    @if(dataNotFoundConfig) {
+                        <div class="tis-data-not-found">
+                            <img src="/assets/icons/not-found.svg" alt="not-found" class="w-53">
+                            <h5 class="tis-h5">{{dataNotFoundConfig.title}}</h5>
+                            <p class="tis-p">{{dataNotFoundConfig.desc}}</p>
+                            @if((dataNotFoundConfig.btnUrl || dataNotFoundConfig?.btnClick) && dataNotFoundConfig.btnText) {
+                                <button mat-flat-button color="primary" class="tis-text-upper"
+                                    (click)="handleButtonClick(dataNotFoundConfig)">
+                                    <mat-icon>add</mat-icon>
+                                    {{dataNotFoundConfig.btnText}}
+                                </button>
+                            }
+                            @if((dataNotFoundConfig.secondBtnUrl || dataNotFoundConfig?.secondBtnClick) && dataNotFoundConfig.secondBtnText) {
+                                <button mat-stroked-button color="primary" class="tis-text-upper"
+                                    (click)="handleSecondButtonClick(dataNotFoundConfig)">
+                                    <mat-icon>add</mat-icon>
+                                    {{dataNotFoundConfig.secondBtnText}}
+                                </button>
+                            }
+                        </div>
+                    }
+
+                }
+
+            }
+
+        </div>
+    </div>
+</section>
