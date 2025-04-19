@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { UserCustomizationService } from '../services/user-customization.service';
-import { TisHelperService } from '../services/tis-helper.service';
+import { UserCustomizationService } from '../../services/user-customization.service';
+import { TisHelperService } from '../../services/tis-helper.service';
 import { TisSmartTableConfirmationDialogComponent } from '../tis-smart-table-confirmation-dialog/tis-smart-table-confirmation-dialog.component';
 import { CreateColumnsTemplateComponent } from '../create-columns-template/create-columns-template.component';
 

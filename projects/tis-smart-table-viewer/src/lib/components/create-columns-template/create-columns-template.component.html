@@ -1,13 +1,13 @@
 
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <h1 mat-dialog-title>
-        {{t?.title}}
+        {{t('createColumnsTemplate.title')}}
         <mat-icon (click)="onClose()" class="tis-curser-pointer">clear</mat-icon>
     </h1>
     <div class="px-6 pt-4">
         <mat-form-field class="w-full tis-mat-form-field" appearance="outline">
-            <mat-label>{{t?.templateName}}</mat-label>
-            <input matInput formControlName="name" placeholder="{{t?.enterTemplateName}}" />
+            <mat-label>{{t('createColumnsTemplate.templateName')}}</mat-label>
+            <input matInput formControlName="name" placeholder="{{t('createColumnsTemplate.enterTemplateName')}}" />
         </mat-form-field>
     </div>
 
@@ -17,7 +17,7 @@
                 <div class="w-full flex flex-row items-center justify-between">
                     <div class="flex flex-row items-center">
                         <mat-icon cdkDragHandle class="tis-curser-pointer" style="color: rgba(0, 0, 0, 0.54); font-size: 19px; width: 19px; height: 19px;">drag_indicator</mat-icon>
-                        <span *ngIf="!data?.skipTranslation">{{t[item.column]}}</span>
+                        <span *ngIf="!data?.skipTranslation">{{t(item.column)}}</span>
                         <span *ngIf="data?.skipTranslation">{{customColumns[item.column]}}</span>
                     </div>
                     <mat-checkbox color="primary" [(ngModel)]="item.isSelected" (ngModelChange)="onChangeColumnStatus($event, item)" [ngModelOptions]="{standalone: true}"></mat-checkbox>
@@ -30,7 +30,7 @@
         <div class="px-6 pt-4">
             <div class="grid grid-cols-2 gap-4">
                 <mat-form-field class="w-full tis-mat-form-field" appearance="outline">
-                    <mat-label>{{t?.freezeColumnFromLeft}}</mat-label>
+                    <mat-label>{{t('createColumnsTemplate.freezeColumnFromLeft')}}</mat-label>
                     <mat-select formControlName="fromStartColumnNumber">
                         <mat-option [value]="0">None</mat-option>
                         @for (item of listComponentColumns; track item; let i = $index; let l = $last;) {
@@ -44,7 +44,7 @@
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field class="w-full tis-mat-form-field" appearance="outline">
-                    <mat-label>{{t?.freezeColumnFromRight}}</mat-label>
+                    <mat-label>{{t('createColumnsTemplate.freezeColumnFromRight')}}</mat-label>
                     <mat-select formControlName="fromEndColumnNumber">
                         <mat-option [value]="0">None</mat-option>
                         @for (item of listComponentColumns; track item; let i = $index; let l = $last;) {
@@ -64,7 +64,7 @@
     <div mat-dialog-actions>
         <button mat-button type="button" class="tis-text-upper tis-btn-primary" mat-dialog-close [disabled]="loading">{{t?.cancel}}</button>
         <button mat-flat-button type="submit" class="tis-text-upper tis-btn-filled-primary" cdkFocusInitial [disabled]="savingTemplate">
-            {{data?.selectedTemplateId ? t?.update : t?.save}}
+            {{data?.selectedTemplateId ? t('createColumnsTemplate.update') : t('createColumnsTemplate.save')}}
             @if(savingTemplate){
                 <i class="fas fa-spinner fa-spin"></i>
             }

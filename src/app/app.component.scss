@@ -1,0 +1,469 @@
+.header {
+    background-color: white;
+    border-bottom: 1px solid #e5e7eb;
+
+    .icon-btn {
+        width: 32px;
+        padding: 4px;
+        height: 32px;
+        margin-right: 5px;
+
+        .mat-icon {
+            color: var(--tis-icon-color);
+        }
+
+        .material-symbols-outlined {
+            color: var(--tis-icon-color);
+        }
+
+        i {
+            width: 24px;
+            height: 24px;
+            font-size: 24px;
+            color: var(--tis-icon-color);
+        }
+    }
+
+    .profile-btn {
+        // width: 42px;
+        padding: 4px;
+
+        // height: 42px;
+        img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 5px;
+            border: 1px solid #9e9e9e;
+        }
+
+        .mat-icon {
+            width: 34px;
+            height: 34px;
+            font-size: 34px;
+            margin-right: 5px;
+            color: var(--tis-primary);
+        }
+    }
+}
+
+.spacer {
+    flex: 1 1 auto;
+}
+
+.drawer-container {
+    height: calc(100% - 64px);
+
+    .mat-drawer {
+        z-index: 1 !important;
+    }
+
+    .mat-drawer-content {
+        background-color: white;
+    }
+}
+
+.drawer {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 285px;
+
+    ::ng-deep .mat-drawer-inner-container {
+        overflow: hidden !important;
+    }
+}
+
+.notifications {
+    width: 400px !important;
+    position: fixed !important;
+}
+
+.xs-notifications {
+    width: 100% !important;
+    position: fixed !important;
+}
+
+::ng-deep .custom-mat-form-field-mb-0 {
+    .mat-mdc-form-field-wrapper {
+        padding-bottom: 0px;
+
+        .mat-mdc-form-field-underline {
+            bottom: 0px;
+        }
+    }
+}
+
+::ng-deep .search-mat-form-field {
+    height: 35px;
+
+    .mat-mdc-text-field-wrapper {
+        padding-left: 10px !important;
+        height: 35px;
+
+        .mat-mdc-form-field-infix {
+            padding-top: 5px;
+            padding-bottom: 5px;
+            min-height: 35px;
+        }
+    }
+}
+
+::ng-deep .more-scrollbar-width::-webkit-scrollbar {
+    width: 10px !important;
+}
+
+::ng-deep .more-scrollbar-height::-webkit-scrollbar {
+    height: 10px !important;
+}
+
+// .mat-mdc-form-field-has-icon-prefix .mat-mdc-text-field-wrapper {
+//     padding-left: 10;
+// }
+
+::ng-deep .job-notification {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    z-index: 999;
+    background: white;
+    max-width: 415px !important;
+    color: #212529 !important;
+}
+
+
+::ng-deep .chat-notification {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    z-index: 999;
+    max-width: 415px !important;
+    height: 100%;
+    overflow-y: auto;
+    color: #212529 !important;
+}
+
+::ng-deep .screen-size-msg {
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    padding: 5px;
+    z-index: 999;
+    background: #060606c7;
+    color: #d09705 !important;
+}
+
+
+
+::ng-deep .tis-mat-form-field-mb-0 {
+    .tis-mat-form-field {
+        .mat-mdc-form-field-subscript-wrapper {
+            display: none !important;
+        }
+    }
+
+    .mat-mdc-form-field-subscript-wrapper {
+        display: none !important;
+    }
+}
+
+::ng-deep .tis-mat-form-field-sm {
+    .tis-mat-form-field {
+        .mat-mdc-text-field-wrapper {
+            height: 40px;
+
+            .mat-mdc-form-field-infix {
+                padding-top: 10px;
+            }
+
+            .mat-mdc-form-field-flex {
+                .mat-mdc-floating-label {
+                    top: 20px;
+
+                    &.mdc-floating-label--float-above {
+                        top: 28px !important;
+                    }
+                }
+            }
+        }
+    }
+}
+
+::ng-deep .tis-mat-form-field-sm {
+    .mat-mdc-text-field-wrapper {
+        height: 40px;
+
+        .mat-mdc-form-field-infix {
+            padding-top: 10px;
+        }
+
+        .mat-mdc-form-field-flex {
+            .mat-mdc-floating-label {
+                top: 20px;
+
+                &.mdc-floating-label--float-above {
+                    top: 28px !important;
+                }
+            }
+        }
+
+        .mat-mdc-form-field-icon-suffix {
+            button {
+                position: absolute;
+                bottom: -5px;
+                right: 8px;
+                padding: 0px;
+                height: 24px;
+                width: 24px;
+            }
+        }
+    }
+}
+
+::ng-deep.tis-btn-toggle-with-icon {
+    .checked-icon {
+        display: none;
+    }
+
+    ::ng-deep .mat-button-toggle-checked {
+        background-color: transparent !important;
+        color: rgba(0, 0, 0, .87) !important;
+
+        ::ng-deep button {
+            border: 2px solid #36824E;
+            height: 100%;
+
+            .checked-icon {
+                display: unset !important;
+            }
+
+            mat-pseudo-checkbox {
+                display: none;
+            }
+        }
+    }
+
+    ::ng-deep .mat-button-toggle-label-content {
+        position: unset;
+    }
+}
+
+::ng-deep.tis-btn-toggle-col {
+    display: flex !important;
+    flex-direction: column !important;
+
+    .mat-button-toggle {
+        border-left-width: 0px !important;
+        border-bottom: solid 1px var(--mat-standard-button-toggle-divider-color) !important;
+
+        &:last-child {
+            border-bottom-width: 0px !important;
+        }
+    }
+}
+
+::ng-deep.tis-btn-toggle-text-left {
+    .mat-button-toggle {
+        .mat-button-toggle-button {
+            text-align: left !important;
+        }
+    }
+}
+
+::ng-deep.tis-btn-toggle-hide-check {
+    .mat-button-toggle {
+        .mat-button-toggle-button {
+            .mat-button-toggle-label-content {
+                mat-pseudo-checkbox {
+                    display: none !important;
+                }
+            }
+        }
+    }
+}
+
+::ng-deep .tis-mat-left-selection-list {
+    .mat-mdc-list-option {
+        padding-left: 40px !important;
+
+        .mdc-list-item__content {
+            margin-left: 8px;
+            margin-right: 8px;
+        }
+
+        .mdc-list-item__end {
+            position: absolute !important;
+            left: 0px !important;
+            margin: 0px !important;
+        }
+    }
+}
+
+::ng-deep .tis-mat-striped-selection-list {
+    .mat-mdc-list-option {
+        &:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+    }
+}
+
+::ng-deep .tis-mat-bordered-selection-list {
+    .mat-mdc-list-option {
+        border: 1px solid #dee2e6 !important;
+        border-bottom-width: 0px !important;
+    }
+}
+
+::ng-deep .tis-mat-grid-selection-list {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+::ng-deep .tis-dialog-header {
+    padding: 8px 16px !important;
+    background-color: #e0e0e0;
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    align-items: center !important;
+    line-height: 32px;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 0.0125em;
+
+    &::before {
+        content: unset !important;
+    }
+}
+
+::ng-deep .tis-dialog-actions {
+    justify-content: space-between !important;
+}
+
+::ng-deep .mdc-list-item__primary-text {
+    white-space: nowrap !important;
+}
+
+::ng-deep .mdc-button__label {
+    z-index: 0 !important;
+}
+
+::ng-deep .graph-container {
+    .node.selected {
+        rect {
+            stroke: var(--tis-primary) !important;
+            stroke-width: 4px !important;
+        }
+    }
+}
+
+::ng-deep .mdc-button {
+    min-width: 50px !important;
+}
+
+::ng-deep .menu-for-qr {
+    .mat-mdc-menu-content {
+        padding: 0px !important;
+    }
+}
+
+::ng-deep .mat-mdc-slide-toggle {
+    .mdc-switch {
+        &.mdc-switch--selected {
+            .mdc-switch__handle-track {
+                .mdc-switch__handle {
+                    .mdc-switch__icons {
+                        background: var(--mdc-switch-selected-handle-color, var(--mat-app-on-primary));
+                        // background: red !important;
+                        border-radius: 50% !important;
+                    }
+                }
+            }
+        }
+
+        &.mdc-switch--unselected {
+            .mdc-switch__handle-track {
+                .mdc-switch__handle {
+                    .mdc-switch__icons {
+                        background: var(--mdc-switch-unselected-handle-color, var(--mat-app-outline));
+                        // background: yellow !important;
+                        border-radius: 50% !important;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ::ng-deep .mat-select-search-panel{
+//     mat-select-search{
+//         .mat-select-search-inner{
+//             input::placeholder {
+//                 color: #888; /* Ensure it's visible */
+//                 opacity: 1;   /* Ensure it's not fully transparent */
+//                 display: unset !important;
+//             }
+//         }
+//     }
+// }
+
+// Extra small devices (portrait phones, less than 576px)
+@media (max-width: 575.98px) {
+    .drawer-container {
+        height: calc(100% - 56px) !important;
+    }
+
+    ::ng-deep .xs-hidden {
+        display: none !important;
+    }
+
+    ::ng-deep .xs-w-100-per {
+        width: 100% !important;
+    }
+
+    ::ng-deep .tis-details-dialog {
+        max-width: 100% !important;
+        width: 99% !important;
+
+        .mat-mdc-dialog-container {
+            .mdc-dialog__container {
+                .mat-mdc-dialog-surface {
+                    .mat-mdc-dialog-content {
+                        padding: 2px !important;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Small devices (landscape phones, 576px and up)
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .drawer-container {
+        height: calc(100% - 56px) !important;
+    }
+
+    ::ng-deep .xs-hidden {
+        display: none !important;
+    }
+
+    ::ng-deep .xs-w-100-per {
+        width: 100% !important;
+    }
+
+    ::ng-deep .tis-details-dialog {
+        max-width: 100% !important;
+        width: 99% !important;
+
+        .mat-mdc-dialog-container {
+            .mdc-dialog__container {
+                .mat-mdc-dialog-surface {
+                    .mat-mdc-dialog-content {
+                        padding: 2px !important;
+                    }
+                }
+            }
+        }
+    }
+}

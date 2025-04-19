@@ -3,8 +3,8 @@ import { Component, Inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TisHelperService } from '../services/tis-helper.service';
-import { UserCustomizationService } from '../services/user-customization.service';
+import { TisHelperService } from '../../services/tis-helper.service';
+import { UserCustomizationService } from '../../services/user-customization.service';
 
 @Component({
     selector: 'app-create-columns-template',

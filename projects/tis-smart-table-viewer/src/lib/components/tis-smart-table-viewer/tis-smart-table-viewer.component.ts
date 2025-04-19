@@ -3,19 +3,20 @@ import { Component, EventEmitter, Input, Output, SimpleChanges, ViewChild } from
 import { FormGroup, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, Subject, takeUntil, tap, Observable, map, shareReplay, distinctUntilChanged, debounceTime } from 'rxjs';
-import { AnyKeyValueObject, SelectedFilterDisplayValuesType, SelectedFilterDisplayValueType, SelectedFiltersGroupedValuesType, SmartTableWrapperColumnsConfig, SmartTableWrapperRowsConfig } from '../interfaces';
+import { AnyKeyValueObject, SelectedFilterDisplayValuesType, SelectedFilterDisplayValueType, SelectedFiltersGroupedValuesType, SmartTableWrapperColumnsConfig, SmartTableWrapperRowsConfig } from '../../interfaces';
 import { SelectionModel } from '@angular/cdk/collections';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { ApiDataSource } from '../datasources/api.datasource';
-import { ApiService } from '../services/api.service';
+import { ApiDataSource } from '../../datasources/api.datasource';
+import { ApiService } from '../../services/api.service';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { DateTime } from "luxon";
-import * as storageHelper from '../helpers/storage-helper';
+import * as storageHelper from '../../helpers/storage-helper';
 import { Location } from '@angular/common';
+import type { DataNotFoundConfig } from '../../interfaces/data-not-found-config.type';
 
 @Component({
   selector: 'tis-smart-table-viewer',
@@ -41,7 +42,7 @@ export class TisSmartTableViewerComponent {
   @Input() startStickyColumnCount!: number;
   @Input() endStickyColumnCount!: number;
   @Input() loaderPosition: 'top' | 'bottom' = 'top';
-  @Input({ required: true }) dataNotFoundConfig = {
+  @Input({ required: true }) dataNotFoundConfig: DataNotFoundConfig = {
     title: 'No Data Found',
     desc: 'There is no data. Please click on button to add',
     btnText: 'Add New',
@@ -178,8 +179,6 @@ export class TisSmartTableViewerComponent {
     });
 
   }
-
-  
 
   ngOnInit(): void {
 

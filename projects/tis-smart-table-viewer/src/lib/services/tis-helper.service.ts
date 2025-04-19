@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
-import { TisSmartTableErrorDialogComponent } from '../tis-smart-table-error-dialog/tis-smart-table-error-dialog.component';
+import { TisSmartTableErrorDialogComponent } from '../components/tis-smart-table-error-dialog/tis-smart-table-error-dialog.component';
 import { Observable } from 'rxjs';
 
 
