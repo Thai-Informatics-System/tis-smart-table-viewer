@@ -3,7 +3,8 @@ import { Component, EventEmitter, Input, Output, SimpleChanges, ViewChild } from
 import { FormGroup, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, Subject, takeUntil, tap, Observable, map, shareReplay, distinctUntilChanged, debounceTime } from 'rxjs';
-import { AnyKeyValueObject, SelectedFilterDisplayValuesType, SelectedFilterDisplayValueType, SelectedFiltersGroupedValuesType, SmartTableWrapperColumnsConfig, SmartTableWrapperRowsConfig } from '../../interfaces';
+import type { SmartTableWrapperRowsConfig } from '../../interfaces';
+import { AnyKeyValueObject, SelectedFilterDisplayValuesType, SelectedFilterDisplayValueType, SelectedFiltersGroupedValuesType, SmartTableWrapperColumnsConfig } from '../../interfaces';
 import { SelectionModel } from '@angular/cdk/collections';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ApiDataSource } from '../../datasources/api.datasource';
@@ -17,6 +18,7 @@ import { DateTime } from "luxon";
 import * as storageHelper from '../../helpers/storage-helper';
 import { Location } from '@angular/common';
 import type { DataNotFoundConfig } from '../../interfaces/data-not-found-config.type';
+import type { ColumnCustomizationUrlConfig } from '../../interfaces/url-config.type';
 
 @Component({
   selector: 'tis-smart-table-viewer',
@@ -28,6 +30,7 @@ import type { DataNotFoundConfig } from '../../interfaces/data-not-found-config.
 export class TisSmartTableViewerComponent {
   homeUrl = '';
 
+  @Input({ required: true }) columnCustomizationUrlConfig!: ColumnCustomizationUrlConfig;
   @Input({ required: true }) t: any = {};
   @Input({ required: true }) componentName = '';
   @Input({ required: true }) mainTitle!: string;

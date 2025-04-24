@@ -7,42 +7,29 @@ import { Observable } from 'rxjs';
 })
 export class UserCustomizationService {
 
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient) {}
+
+    getColumnsTemplates(url: string, listComponent: string): Observable<any> {
+        return this.http.get(`${url}?listComponent=${listComponent}`);
     }
 
-    getColumnsTemplates(listComponent: string): Observable<any> {
-        return this.http.get(`/user-customization/get-columns-templates?listComponent=${listComponent}`);
+    addColumnsTemplate(url: string, body: any): Observable<any> {
+        return this.http.post(url, body);
     }
 
-    addColumnsTemplate(body: any): Observable<any> {
-        return this.http.post(`/user-customization/add-columns-template`, body);
+    updateColumnsTemplate(url: string, body: any): Observable<any> {
+        return this.http.post(url, body);
     }
 
-    updateColumnsTemplate(body: any): Observable<any> {
-        return this.http.post(`/user-customization/update-columns-template`, body);
+    deleteColumnsTemplate(url: string, body: any): Observable<any> {
+        return this.http.put(url, body);
     }
 
-    deleteColumnsTemplate(body: any): Observable<any> {
-        return this.http.put(`/user-customization/delete-columns-template`, body);
+    getSelectedColumnsTemplate(url: string, listComponent: string): Observable<any> {
+        return this.http.get(`${url}?listComponent=${listComponent}`);
     }
 
-    getSelectedColumnsTemplate(listComponent: string): Observable<any> {
-        return this.http.get(`/user-customization/get-selected-columns-template?listComponent=${listComponent}`);
-    }
-
-    updateSelectedColumnsTemplate(body: any): Observable<any> {
-        return this.http.post(`/user-customization/update-selected-columns-template`, body);
-    }
-
-    addUserChartPreferences(body: any): Observable<any> {
-        return this.http.post(`/user-customization/add-user-chart-preferences`, body);
-    }
-
-    getUserChartPreferenceDetails(companyId: number | string | null): Observable<any> {
-        return this.http.get(`/user-customization/get-user-chart-preference-details/${companyId}`);
-    }
-
-    updateUserChartPreferences(id: number, body: any): Observable<any> {
-        return this.http.put(`/user-customization/update-user-chart-preferences/${id}`, body);
+    updateSelectedColumnsTemplate(url: string, body: any): Observable<any> {
+        return this.http.post(url, body);
     }
 }

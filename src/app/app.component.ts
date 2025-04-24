@@ -1,6 +1,7 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import { SelectedFilterDisplayValuesType, SelectedFilterDisplayValueType, SmartTableWrapperColumnsConfig, SmartTableWrapperRowsConfig, TisSmartTableViewerComponent, TisSmartTableViewerModule } from 'tis-smart-table-viewer';
+import { SelectedFilterDisplayValuesType, SelectedFilterDisplayValueType, SmartTableWrapperColumnsConfig, TisSmartTableViewerComponent, TisSmartTableViewerModule } from 'tis-smart-table-viewer';
+import type { ColumnCustomizationUrlConfig, SmartTableWrapperRowsConfig } from 'tis-smart-table-viewer';
 import { TranslocoModule, provideTranslocoScope } from '@ngneat/transloco';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -37,7 +38,7 @@ const uiImports = [
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, TranslocoModule, TisSmartTableViewerModule, CommonModule, FormsModule, ReactiveFormsModule, RouterLink, ...uiImports,],
+  imports: [RouterOutlet, TranslocoModule, TisSmartTableViewerModule, CommonModule, FormsModule, ReactiveFormsModule, RouterLink, ...uiImports],
   providers: [provideTranslocoScope('serviceManagement')],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -100,6 +101,8 @@ export class AppComponent {
   filterFormGroup!: FormGroup;
   isShowFilter = false;
 
+  columnCustomizationUrlConfig!: ColumnCustomizationUrlConfig
+
   rowsConfig: SmartTableWrapperRowsConfig = {
     backgroundApplyFunction: (row: any) => {
       if (row?.viewsCount == 0) {
@@ -115,6 +118,15 @@ export class AppComponent {
   ) { }
 
   ngOnInit(): void {
+    this.columnCustomizationUrlConfig = {
+      list: '/user-customization/get-columns-templates',
+      add: '/user-customization/add-columns-template',
+      update: '/user-customization/update-columns-template',
+      delete: '/user-customization/delete-columns-template',
+      getSelectedTemplate: '/user-customization/get-selected-columns-template',
+      updateSelectedTemplate: '/user-customization/update-selected-columns-template'
+    }
+
     this.createFilterForm();
   }
 

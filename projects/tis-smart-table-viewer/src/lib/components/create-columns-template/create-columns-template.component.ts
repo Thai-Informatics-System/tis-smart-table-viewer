@@ -5,6 +5,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TisHelperService } from '../../services/tis-helper.service';
 import { UserCustomizationService } from '../../services/user-customization.service';
+import type { ColumnCustomizationUrlConfig } from '../../interfaces/url-config.type';
 
 @Component({
     selector: 'app-create-columns-template',
@@ -25,6 +26,7 @@ export class CreateColumnsTemplateComponent {
   translationReadKey!: string
   customColumns: any;
   t: any;
+  columnCustomizationUrlConfig!: ColumnCustomizationUrlConfig;
 
   constructor(
     public dialogRef: MatDialogRef<CreateColumnsTemplateComponent>,
@@ -38,6 +40,10 @@ export class CreateColumnsTemplateComponent {
     
     if(this.data?.customColumns){
       this.customColumns = this.data?.customColumns ?? {};
+    }
+
+    if(this.data?.columnCustomizationUrlConfig){
+      this.columnCustomizationUrlConfig = this.data.columnCustomizationUrlConfig;
     }
     
     // this.dialogRef.addPanelClass(['lg-w-45-per']);
@@ -137,7 +143,7 @@ export class CreateColumnsTemplateComponent {
     this.savingTemplate = true;
     this.loading = true;
     if(this.data?.selectedTemplateId){
-      this.userCustomizationService.updateColumnsTemplate({id: this.data?.selectedTemplateId, ...data}).subscribe(r => {
+      this.userCustomizationService.updateColumnsTemplate(this.columnCustomizationUrlConfig.update, {id: this.data?.selectedTemplateId, ...data}).subscribe(r => {
         console.log("add response: ", r);
         // this.loading = false;
         this.helper.showSuccessMsg(r.message, 'Success');
@@ -154,7 +160,7 @@ export class CreateColumnsTemplateComponent {
       })
     }
     else{
-      this.userCustomizationService.addColumnsTemplate(data).subscribe(r => {
+      this.userCustomizationService.addColumnsTemplate(this.columnCustomizationUrlConfig.add, data).subscribe(r => {
         console.log("add response: ", r);
         // this.loading = false;
         this.helper.showSuccessMsg(r.message, 'Success');

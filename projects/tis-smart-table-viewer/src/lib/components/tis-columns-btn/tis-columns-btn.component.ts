@@ -4,6 +4,7 @@ import { UserCustomizationService } from '../../services/user-customization.serv
 import { TisHelperService } from '../../services/tis-helper.service';
 import { TisSmartTableConfirmationDialogComponent } from '../tis-smart-table-confirmation-dialog/tis-smart-table-confirmation-dialog.component';
 import { CreateColumnsTemplateComponent } from '../create-columns-template/create-columns-template.component';
+import type { ColumnCustomizationUrlConfig } from '../../interfaces/url-config.type';
 
 @Component({
     selector: 'tis-columns-btn',
@@ -14,6 +15,7 @@ import { CreateColumnsTemplateComponent } from '../create-columns-template/creat
 export class TisColumnsBtnComponent {
   static readonly COMPONENT_NAME = 'TisColumnsBtnComponent';
 
+  @Input({ required: true }) columnCustomizationUrlConfig!: ColumnCustomizationUrlConfig;
   @Input() t: any = {};
   @Input({required: true}) componentName!: string;
   @Input({required: true}) defaultColumns!: string[];
@@ -96,7 +98,7 @@ export class TisColumnsBtnComponent {
   }
 
   getColumnsTemplates() {
-    this.userCustomizationService.getColumnsTemplates(this.componentName).subscribe(r => {
+    this.userCustomizationService.getColumnsTemplates(this.columnCustomizationUrlConfig.list, this.componentName).subscribe(r => {
       console.log("getColumnsTemplates:", r.data);
       this.templates = r?.data ?? [];
       setTimeout(() => {
@@ -106,7 +108,7 @@ export class TisColumnsBtnComponent {
   }
 
   getSelectedColumnsTemplate() {
-    this.userCustomizationService.getSelectedColumnsTemplate(this.componentName).subscribe((r) => {
+    this.userCustomizationService.getSelectedColumnsTemplate(this.columnCustomizationUrlConfig.getSelectedTemplate, this.componentName).subscribe((r) => {
       console.log("getSelectedColumnsTemplate:", r.data);
       if (r?.data && Object.keys(r?.data).length != 0) {
         if(r.data?.listComponentColumnsTemplateId > 0){
@@ -144,7 +146,7 @@ export class TisColumnsBtnComponent {
         dialogRef.afterClosed().subscribe((result) => {
           console.log("The dialog was closed with result:", result);
           if (result) {
-            this.userCustomizationService.deleteColumnsTemplate({id: templateId, isSelectedTemplate: this.selectedTemplate?.id == templateId}).subscribe((r) => {
+            this.userCustomizationService.deleteColumnsTemplate(this.columnCustomizationUrlConfig.delete, {id: templateId, isSelectedTemplate: this.selectedTemplate?.id == templateId}).subscribe((r) => {
               this.helper.showSuccessMsg('Columns template has been deleted successfully', 'Done');
               this.templates.splice(this.templates.findIndex(ee => ee.id == templateId), 1);
               if(this.selectedTemplate?.id == templateId){
@@ -177,7 +179,7 @@ export class TisColumnsBtnComponent {
             };
           }
 
-          this.userCustomizationService.updateSelectedColumnsTemplate({id: this.selectedTemplate?.id, listComponentName: this.componentName}).subscribe((r) => {
+          this.userCustomizationService.updateSelectedColumnsTemplate(this.columnCustomizationUrlConfig.updateSelectedTemplate, {id: this.selectedTemplate?.id, listComponentName: this.componentName}).subscribe((r) => {
             this.changeDisplayColumns();
           });
         }
