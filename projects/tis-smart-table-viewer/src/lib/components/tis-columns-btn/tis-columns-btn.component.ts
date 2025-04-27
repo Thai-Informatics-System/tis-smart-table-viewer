@@ -202,4 +202,14 @@ export class TisColumnsBtnComponent {
     this.fromStartColumnNumberChange.emit(this.selectedTemplate?.fromStartColumnNumber ?? 0);
     this.fromEndColumnNumberChange.emit(this.selectedTemplate?.fromEndColumnNumber ?? 0);
   }
+
+  onMouseOverOut(event: Event, color: string) {
+    const target = event.target as HTMLElement;
+    target.style.color = color;
+  }
+  
+  onMouseOut(event: Event) {
+    const target = event.target as HTMLElement;
+    target.style.color = `color: var(--tis-primary, var(--mat-sys-primary, #3838a2)) !important;`;
+  }
 }

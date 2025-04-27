@@ -118,17 +118,17 @@
 
 .tis-cancel-button:not(:disabled) {
     text-transform: uppercase !important;
-    color: var(--tis-primary, #3838a2) !important;
+    color: var(--tis-primary, var(--mat-sys-primary, #3838a2)) !important;
 }
 
 .tis-cancel-button:not(:disabled):hover .mat-mdc-button-persistent-ripple::before {
-    background-color: var(--tis-primary, #3838a2);
+    background-color: var(--tis-primary, var(--mat-sys-primary, #3838a2));
 }
 
 .tis-submit-button:not(:disabled) {
     text-transform: uppercase !important;
     color: white !important;
-    background-color: var(--tis-primary, #3838a2) !important;
+    background-color: var(--tis-primary, var(--mat-sys-primary, #3838a2)) !important;
 }
 
 /* Checkbox styles were mentioned as moved to common-style.scss

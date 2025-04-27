@@ -3149,13 +3149,48 @@ body {
       }
     }
 
-    .active {
-      color: var(--tis-primary) !important;
+    // .active {
+    //   color: var(--tis-primary) !important;
 
+    //   .mat-icon {
+    //     color: var(--tis-primary) !important;
+    //     margin-right: 5px !important;
+    //   }
+    // }
+
+    .tis-create-columns-template-button{
+      color: var(--tis-primary) !important;
       .mat-icon {
         color: var(--tis-primary) !important;
         margin-right: 5px !important;
       }
+    }
+  }
+}
+
+.tis-create-columns-template {
+  mat-dialog-container {
+    .mat-mdc-dialog-title {
+      padding: 16px 24px;
+      background-color: #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      align-items: center;
+
+      &::before {
+        content: unset;
+      }
+    }
+
+    .mat-mdc-dialog-content {
+      padding: 10px 24px !important;
+      padding-top: 0px !important;
+    }
+
+    .mat-mdc-dialog-actions {
+      padding: 24px 24px;
+      justify-content: space-between;
     }
   }
 }
