@@ -11,7 +11,9 @@ export class TisSmartTableErrorDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<TisSmartTableErrorDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-  ) {}
+  ) {
+    this.dialogRef.addPanelClass(['tis-smart-table-error-dialog']);
+  }
 
   onClose(): void {
     this.dialogRef.close();

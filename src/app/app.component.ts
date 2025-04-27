@@ -2,7 +2,7 @@ import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { SelectedFilterDisplayValuesType, SelectedFilterDisplayValueType, SmartTableWrapperColumnsConfig, TisSmartTableViewerComponent, TisSmartTableViewerModule } from 'tis-smart-table-viewer';
 import type { ColumnCustomizationUrlConfig, SmartTableWrapperRowsConfig } from 'tis-smart-table-viewer';
-import { TranslocoModule, provideTranslocoScope } from '@ngneat/transloco';
+import { TranslocoModule, TranslocoService, provideTranslocoScope } from '@ngneat/transloco';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -115,6 +115,7 @@ export class AppComponent {
 
   constructor(
     private router: Router,
+    private translocoService: TranslocoService,
   ) { }
 
   ngOnInit(): void {
@@ -128,6 +129,12 @@ export class AppComponent {
     }
 
     this.createFilterForm();
+
+    this.translocoService.selectTranslate('lang', {}, 'serviceManagement').subscribe((translation: string) => {
+      console.log("==== translation ====", translation);
+      let t = this.translocoService.translateObject('serviceRequestListComponent', {}, 'serviceManagement');
+      console.log("==== translation::t ====", t);
+    });
   }
 
   createFilterForm() {
@@ -174,5 +181,11 @@ export class AppComponent {
       type: null,
     });
     this.tableListViewWrapperComponent.getList(true);
+  }
+
+  get getLanguageJson(){
+    let translations = this.translocoService.translateObject('serviceRequestListComponent', {}, 'serviceManagement');
+    console.log("==== translation::getLanguageJson ====", translations);
+    return translations;
   }
 }

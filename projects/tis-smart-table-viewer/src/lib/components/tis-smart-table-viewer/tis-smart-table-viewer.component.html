@@ -2,7 +2,7 @@
     <div class="tis-page-header" *ngIf="!hideHeader">
         <nav aria-label="tis-breadcrumb">
             <ol class="tis-breadcrumb">
-                <li class="tis-breadcrumb-item"><a href="javascript:;" [routerLink]="homeUrl">{{t('home')}}</a></li>
+                <li class="tis-breadcrumb-item"><a href="javascript:;" [routerLink]="homeUrl">{{t['home']}}</a></li>
                 @for(breadcrumb of breadcrumbs; track breadcrumb) {
                     <li class="tis-breadcrumb-item" *ngIf="breadcrumb?.url">
                         <a href="javascript:;" (click)="goToUrl(breadcrumb.url)">{{breadcrumb?.name}}</a>
@@ -132,11 +132,11 @@
                                         <ng-container [matColumnDef]="column.name" [sticky]="isStickyStart(column.name)" [stickyEnd]="isStickyEnd(column.name)">
                                             @if(column.sort) {
                                                 <th mat-header-cell mat-sort-header *matHeaderCellDef [ngClass]="getColumnClasses(column)">
-                                                    {{ t(column.name) }}
+                                                    {{ t[column.name] }}
                                                 </th>
                                             } @else {
                                                 <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
-                                                    {{ t(column.name) }}
+                                                    {{ t[column.name] }}
                                                 </th>
                                             }
                                             
@@ -182,11 +182,11 @@
                                         <ng-container [matColumnDef]="column.name"  [sticky]="isStickyStart(column.name)" [stickyEnd]="isStickyEnd(column.name)">
                                             @if(column.sort) {
                                                 <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="getColumnClasses(column)">
-                                                    {{ t(column.name) }}
+                                                    {{ t[column.name] }}
                                                 </th>
                                             } @else {
                                                 <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
-                                                    {{ t(column.name) }}
+                                                    {{ t[column.name] }}
                                                 </th>
                                             }
                                             <td mat-cell *matCellDef="let element" class="4al-{{column.align}} 4ty-{{column.type}}" [ngClass]="getColumnClasses(column)">

@@ -2,7 +2,7 @@
     <div class="container-fluid tis-main-container" id="tis-main-container">
         <div class="tis-page">
             <h1 class="tis-page-title">{{t('cases')}}</h1>
-            <tis-smart-table-viewer #mainTableWrapper [columnCustomizationUrlConfig]="columnCustomizationUrlConfig" [t]="t" componentName="cm-service-request" [mainTitle]="t('list')"
+            <tis-smart-table-viewer #mainTableWrapper [columnCustomizationUrlConfig]="columnCustomizationUrlConfig" [t]="getLanguageJson" componentName="cm-service-request" [mainTitle]="t('list')"
                 [breadcrumbs]="[{url: '/admin/service-management/cases', name: t('breadcrumb')}]"
                 [columnsCodeMapping]="columnsCodeMapping" [searchPlaceholder]="t('searchPlaceholder')"
                 [loadDataApiBaseUrl]="loadDataApiBaseUrl" [(pageSize)]="pageSize" [(pageIndex)]="pageIndex" [hideHeader]="true"

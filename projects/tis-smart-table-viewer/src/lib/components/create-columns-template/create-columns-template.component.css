@@ -1,0 +1,150 @@
+.width-100 {
+    width: 100% !important;
+}
+
+.example-container {
+    width: 400px;
+    max-width: 100%;
+    margin: 0 25px 25px 0;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.example-list {
+    min-height: 60px;
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+    display: block;
+}
+
+.example-box {
+    border-bottom: solid 1px #EEE;
+    color: rgba(0, 0, 0, 0.87);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    background: white;
+    font-size: 14px;
+}
+
+.example-div{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.example-item{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 4px;
+    box-shadow:
+        0 5px 5px -3px rgba(0, 0, 0, 0.2),
+        0 8px 10px 1px rgba(0, 0, 0, 0.14),
+        0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+    opacity: 0;
+}
+
+.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.mt-40 {
+    margin-top: 40px;
+}
+
+.w-10 {
+    width: 10%;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.drag-index {
+    font-size: 16px;
+    font-weight: 500;
+    padding: 8px;
+    width: 40px;
+    text-align: end;
+}
+
+.drag-icon {
+    background-color: #36834f;
+    color: #fff;
+    text-align: center;
+    position: relative;
+}
+
+.drag-icon i {
+    padding-top: 3px;
+    cursor: move;
+}
+
+.drag-content {
+    margin-top: 8px;
+    padding-left: 10px;
+}
+
+.drag-content span {
+    vertical-align: text-bottom;
+    padding-left: 5px;
+}
+
+.tis-cancel-button:not(:disabled) {
+    text-transform: uppercase !important;
+    color: var(--tis-primary, #3838a2) !important;
+}
+
+.tis-cancel-button:not(:disabled):hover .mat-mdc-button-persistent-ripple::before {
+    background-color: var(--tis-primary, #3838a2);
+}
+
+.tis-submit-button:not(:disabled) {
+    text-transform: uppercase !important;
+    color: white !important;
+    background-color: var(--tis-primary, #3838a2) !important;
+}
+
+/* Checkbox styles were mentioned as moved to common-style.scss
+  If needed again, uncomment and include the following:
+  
+  ::ng-deep .mat-checkbox-checked.mat-accent .mat-checkbox-background {
+    background-color: white !important;
+    border: solid rgba(0, 0, 0, 0.40);
+    border-width: 2px;
+  }
+  
+  ::ng-deep mat-checkbox .mat-checkbox-frame {
+    border-color: rgba(0, 0, 0, 0.40);
+  }
+  
+  ::ng-deep mat-checkbox .mat-checkbox-checkmark-path {
+    stroke: black !important;
+  }
+  */

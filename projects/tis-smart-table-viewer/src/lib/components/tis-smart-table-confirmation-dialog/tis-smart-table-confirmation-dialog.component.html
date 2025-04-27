@@ -1,4 +1,4 @@
-<h1 mat-dialog-title style="align-items: center; display: flex;">
+<h1 mat-dialog-title style="gap: 10px; justify-content: start; width: 100%; align-items: center; display: flex; padding: 8px 16px;">
     <mat-icon class="{{data?.iconClass}}" style="color: var(--tis-cancel, #bb333b)">{{data?.icon}}</mat-icon>
     <span>{{data?.title}}</span>
 </h1>
@@ -12,7 +12,7 @@
         <span>{{data?.message}}</span>
     }
 </div>
-<div mat-dialog-actions>
+<div mat-dialog-actions style="border-top: 1px solid rgba(0, 0, 0, 0.12); justify-content: end;">
     <button mat-button class="{{data?.cancelButtonClass}}" style="color: var(--tis-primary, var(--mat-sys-primary))" (click)="onClose(false)" *ngIf="data?.cancelButtonText && data?.cancelButtonText != ''">{{data?.cancelButtonText}}</button>
     <button mat-button class="{{data?.approveButtonClass}}" style="color: var(--tis-cancel, #bb333b)" (click)="onClose(true)" cdkFocusInitial *ngIf="data?.approveButtonText && data?.approveButtonText != ''">{{data?.approveButtonText}}</button>
 </div>

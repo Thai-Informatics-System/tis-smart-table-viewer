@@ -76,6 +76,15 @@
         "cases": "Cases",
         "tisColumnsBtnComponent": {
             "createNewView": "Create New View"
+        },
+        "createColumnsTemplate": {
+            "title": "Select columns to display",
+            "templateName": "Template Name",
+            "enterTemplateName": "Enter Template Name",
+            "freezeColumnFromLeft": "Freeze Column From Left",
+            "freezeColumnFromRight": "Freeze Column From Right",
+            "save": "Save",
+            "update": "Update"
         }
     }
 }

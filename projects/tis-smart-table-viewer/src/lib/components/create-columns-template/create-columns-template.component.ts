@@ -8,9 +8,9 @@ import { UserCustomizationService } from '../../services/user-customization.serv
 import type { ColumnCustomizationUrlConfig } from '../../interfaces/url-config.type';
 
 @Component({
-    selector: 'app-create-columns-template',
+    selector: 'tis-create-columns-template',
     templateUrl: './create-columns-template.component.html',
-    styleUrl: './create-columns-template.component.scss',
+    styleUrl: './create-columns-template.component.css',
     standalone: false
 })
 export class CreateColumnsTemplateComponent {
@@ -46,7 +46,7 @@ export class CreateColumnsTemplateComponent {
       this.columnCustomizationUrlConfig = this.data.columnCustomizationUrlConfig;
     }
     
-    // this.dialogRef.addPanelClass(['lg-w-45-per']);
+    this.dialogRef.addPanelClass(['tis-create-columns-template']);
   }
 
   ngOnInit(): void {
