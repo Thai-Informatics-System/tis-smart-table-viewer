@@ -65,7 +65,8 @@ export class TisColumnsBtnComponent {
       displayColumns: stData ? stData?.displayColumns?.split(',') : this.displayedColumns,
       t: this.t,
       skipTranslation: this.skipTranslation,
-      customColumns: this.customColumns
+      customColumns: this.customColumns,
+      columnCustomizationUrlConfig: this.columnCustomizationUrlConfig
     };
 
     const dialogRef = this.dialog.open(CreateColumnsTemplateComponent, {
