@@ -2,7 +2,7 @@
     <div class="tis-page-header" *ngIf="!hideHeader">
         <nav aria-label="tis-breadcrumb">
             <ol class="tis-breadcrumb">
-                <li class="tis-breadcrumb-item"><a href="javascript:;" [routerLink]="homeUrl">{{t['home']}}</a></li>
+                <li class="tis-breadcrumb-item"><a href="javascript:;" [routerLink]="homeUrl">{{t?.home}}</a></li>
                 @for(breadcrumb of breadcrumbs; track breadcrumb) {
                     <li class="tis-breadcrumb-item" *ngIf="breadcrumb?.url">
                         <a href="javascript:;" (click)="goToUrl(breadcrumb.url)">{{breadcrumb?.name}}</a>

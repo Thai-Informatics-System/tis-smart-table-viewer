@@ -62,7 +62,7 @@
     }
 
     <div mat-dialog-actions>
-        <button mat-button type="button" class="tis-cancel-button" mat-dialog-close [disabled]="loading">{{t?.cancel}}</button>
+        <button mat-button type="button" class="tis-cancel-button" mat-dialog-close [disabled]="loading">{{t?.createColumnsTemplate?.cancel}}</button>
         <button mat-flat-button type="submit" class="tis-submit-button" cdkFocusInitial [disabled]="savingTemplate">
             {{data?.selectedTemplateId ? t?.createColumnsTemplate?.update : t?.createColumnsTemplate?.save}}
             @if(savingTemplate){

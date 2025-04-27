@@ -83,8 +83,15 @@
             "enterTemplateName": "Enter Template Name",
             "freezeColumnFromLeft": "Freeze Column From Left",
             "freezeColumnFromRight": "Freeze Column From Right",
+            "cancel": "Cancel",
             "save": "Save",
             "update": "Update"
+        },
+        "deleteColumnsTemplate": {
+            "title": "Delete template",
+            "message": "Are you sure you want to delete this template?",
+            "no": "Cancel",
+            "yes": "Yes, Confirm"
         }
     }
 }

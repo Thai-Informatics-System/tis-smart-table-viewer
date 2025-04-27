@@ -125,13 +125,13 @@ export class TisColumnsBtnComponent {
       if(this.isDeleteTemplate){
         console.log("onSelectedTemplate:", this.isDeleteTemplate);
         let confirmBoxData: any = {
-          title: "Delete template",
-          message: `Are you sure you want to delete this template?`,
+          title: this.t?.deleteColumnsTemplate?.title,
+          message: this.t?.deleteColumnsTemplate?.message,
           iconClass: "tis-text-danger",
           icon: "delete",
-          approveButtonText: "Yes, Confirm",
+          approveButtonText: this.t?.deleteColumnsTemplate?.yes,
           approveButtonClass: "tis-btn-danger",
-          cancelButtonText: "Cancel",
+          cancelButtonText: this.t?.deleteColumnsTemplate?.no,
           cancelButtonClass: "tis-btn-primary"
         };
     
