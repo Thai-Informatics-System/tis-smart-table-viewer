@@ -29,6 +29,7 @@ import { Quantity } from './pipes/quantity.pipe';
 import { Money } from './pipes/money.pipe';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatSortModule } from '@angular/material/sort';
 
 
 const directives = [
@@ -58,7 +59,8 @@ const uiImports = [
   MatTableModule,
   MatCheckboxModule,
   MatMenuModule,
-  MatDividerModule
+  MatDividerModule,
+  MatSortModule
 ];
 
 

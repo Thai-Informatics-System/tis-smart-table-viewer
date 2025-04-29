@@ -293,7 +293,7 @@ export class TisSmartTableViewerComponent {
 
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(`[table-list-view-wrapper]: ngOnChanges:`, changes);
+    // console.log(`[table-list-view-wrapper]: ngOnChanges:`, changes);
 
     if (changes['defaultDisplayedColumns']) {
       console.log(`[table-list-view-wrapper]: changes['defaultDisplayedColumns']:`, changes['defaultDisplayedColumns']);

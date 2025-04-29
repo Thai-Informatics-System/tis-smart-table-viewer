@@ -185,7 +185,7 @@ export class AppComponent {
 
   get getLanguageJson(){
     let translations = this.translocoService.translateObject('serviceRequestListComponent', {}, 'serviceManagement');
-    console.log("==== translation::getLanguageJson ====", translations);
+    // console.log("==== translation::getLanguageJson ====", translations);
     return translations;
   }
 }
