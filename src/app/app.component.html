@@ -11,7 +11,7 @@
                     desc: t('noDataFoundDescription'),
                     btnText: t('addNew'),
                     btnUrl: '/admin/service-management/cases/add'}
-                " [enableRowsSelection]="true" [enableAllRowsSelection]="true" [(resetSelectedRows)]="resetSelectedRows" (selectedRowsChange)="selectedRowsChanged($event)">
+                " [enableRowsSelection]="true" [enableAllRowsSelection]="true" (selectedRowsChange)="selectedRowsChanged($event)">
 
                 <!--Filter Buttons-->
                 <ng-container slot="filter-button-section">
@@ -46,7 +46,7 @@
                         
                                 <div class="xl:col-span-6 lg:col-span-6 col-span-12 flex justify-end gap-3 pt-3">
                                     <button mat-button type="button" class="tis-btn-primary tis-text-upper"
-                                        (click)="onReset()">
+                                        (click)="onReset(); resetSelectedRows();">
                                         {{'resetAll'}}
                                     </button>
                                     <button mat-raised-button type="submit" class="tis-text-upper tis-btn-filled-primary">

@@ -155,8 +155,6 @@ export class TisSmartTableViewerComponent {
   @Input() onlySingleSelection = false;
   @Input() selectedRows!: any[];
   @Output() selectedRowsChange = new EventEmitter<any>();
-  @Input() resetSelectedRows: boolean = false;
-  @Output() resetSelectedRowsChange = new EventEmitter<boolean>();
 
   selection = new SelectionModel<any>(true, []);
   selectedIds: Set<number | string> = new Set();
@@ -381,17 +379,6 @@ export class TisSmartTableViewerComponent {
       this.selectedRows = changes['selectedRows'].currentValue;
       if (this.selectedRows && this.selectedRows.length) {
         // TODO:: Leave for now.....  (Not able to decide whether in future we need to pass whole row or ids only)
-      }
-    }
-
-    if (changes['resetSelectedRows']) {
-      if(changes['resetSelectedRows'].currentValue === true){
-        this.isAllRowsSelected = false;
-        this.selection.clear();
-        this.selectedRows = this.selection.selected;
-        this.selectedRowsChange.emit(this.selectedRows);
-        this.resetSelectedRows = false;
-        this.resetSelectedRowsChange.emit(this.resetSelectedRows);
       }
     }
 
@@ -842,5 +829,12 @@ export class TisSmartTableViewerComponent {
     } else if (config?.secondBtnUrl) {
       this.goToUrl(config.secondBtnUrl);
     }
+  }
+
+  public resetSelectedRows(){
+    this.isAllRowsSelected = false;
+    this.selection.clear();
+    this.selectedRows = this.selection.selected;
+    this.selectedRowsChange.emit(this.selectedRows);
   }
 }

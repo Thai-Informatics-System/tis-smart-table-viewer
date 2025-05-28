@@ -104,7 +104,6 @@ export class AppComponent {
   columnCustomizationUrlConfig!: ColumnCustomizationUrlConfig;
 
   selectedRows: any[] = [];
-  resetSelectedRows: boolean = false;
 
   rowsConfig: SmartTableWrapperRowsConfig = {
     backgroundApplyFunction: (row: any) => {
@@ -180,11 +179,14 @@ export class AppComponent {
   }
 
   onReset() {
-    // this.filterFormGroup.patchValue({
-    //   type: null,
-    // });
-    // this.tableListViewWrapperComponent.getList(true);
-    this.resetSelectedRows = true;
+    this.filterFormGroup.patchValue({
+      type: null,
+    });
+    this.tableListViewWrapperComponent.getList(true);
+  }
+
+  resetSelectedRows(){
+    this.tableListViewWrapperComponent.resetSelectedRows();
   }
 
   get getLanguageJson(){
