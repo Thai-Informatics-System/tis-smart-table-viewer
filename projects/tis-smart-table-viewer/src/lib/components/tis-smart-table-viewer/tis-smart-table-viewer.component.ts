@@ -386,6 +386,7 @@ export class TisSmartTableViewerComponent {
 
     if (changes['resetSelectedRows']) {
       if(changes['resetSelectedRows'].currentValue === true){
+        this.isAllRowsSelected = false;
         this.selection.clear();
         this.selectedRows = this.selection.selected;
         this.selectedRowsChange.emit(this.selectedRows);
