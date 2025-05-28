@@ -95,13 +95,16 @@ export class AppComponent {
 
   pageSize = 10;
   pageIndex = 0;
-  loadDataApiBaseUrl = `https://mocki.io/v1/2f34e933-74dc-4433-83ac-b66991f7e472`;
+  loadDataApiBaseUrl = `https://mocki.io/v1/e5774f40-933a-41cf-8005-1921f7ee4dcc`;
   filterData!: any;
 
   filterFormGroup!: FormGroup;
   isShowFilter = false;
 
-  columnCustomizationUrlConfig!: ColumnCustomizationUrlConfig
+  columnCustomizationUrlConfig!: ColumnCustomizationUrlConfig;
+
+  selectedRows: any[] = [];
+  resetSelectedRows: boolean = false;
 
   rowsConfig: SmartTableWrapperRowsConfig = {
     backgroundApplyFunction: (row: any) => {
@@ -177,15 +180,21 @@ export class AppComponent {
   }
 
   onReset() {
-    this.filterFormGroup.patchValue({
-      type: null,
-    });
-    this.tableListViewWrapperComponent.getList(true);
+    // this.filterFormGroup.patchValue({
+    //   type: null,
+    // });
+    // this.tableListViewWrapperComponent.getList(true);
+    this.resetSelectedRows = true;
   }
 
   get getLanguageJson(){
     let translations = this.translocoService.translateObject('serviceRequestListComponent', {}, 'serviceManagement');
     // console.log("==== translation::getLanguageJson ====", translations);
     return translations;
+  }
+
+  selectedRowsChanged(selectedRows: any) {
+    this.selectedRows = selectedRows;
+    console.log("=== selectedRowsChanged ===", this.selectedRows);
   }
 }
