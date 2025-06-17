@@ -104,7 +104,7 @@ export class AppComponent {
   columnCustomizationUrlConfig!: ColumnCustomizationUrlConfig;
 
   selectedRows: any[] = [];
-  selectedRowIds: (number | string)[] = ["1816", "1915"];
+  selectedRowIds: (number | string)[] = [];
 
   rowsConfig: SmartTableWrapperRowsConfig = {
     backgroundApplyFunction: (row: any) => {
@@ -122,9 +122,6 @@ export class AppComponent {
   ) { }
 
   ngOnInit(): void {
-    setTimeout(() => {
-      this.selectedRowIds = [...this.selectedRowIds, "1717"];
-    }, 5000);
     this.columnCustomizationUrlConfig = {
       list: '/user-customization/get-columns-templates',
       add: '/user-customization/add-columns-template',
@@ -202,5 +199,10 @@ export class AppComponent {
   selectedRowsChanged(selectedRows: any) {
     this.selectedRows = selectedRows;
     console.log("=== selectedRowsChanged ===", this.selectedRows);
+  }
+
+  onDataLoaded(status: boolean) {
+    this.selectedRowIds = ["1816", "1915", "1717"];
+    // alert(true);
   }
 }

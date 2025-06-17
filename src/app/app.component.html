@@ -11,7 +11,7 @@
                     desc: t('noDataFoundDescription'),
                     btnText: t('addNew'),
                     btnUrl: '/admin/service-management/cases/add'}
-                " [enableRowsSelection]="true" [enableAllRowsSelection]="true" [selectedRowIds]="selectedRowIds" (selectedRowsChange)="selectedRowsChanged($event)">
+                " [enableRowsSelection]="true" [enableAllRowsSelection]="true" [selectedRowIds]="selectedRowIds" (selectedRowsChange)="selectedRowsChanged($event)" (onDataLoaded)="onDataLoaded($event)">
 
                 <!--Filter Buttons-->
                 <ng-container slot="filter-button-section">

@@ -87,7 +87,9 @@ export class TisSmartTableViewerComponent {
 
   @Input() rowsConfig: SmartTableWrapperRowsConfig = {
     backgroundApplyFunction: () => null // Default blank function
-  }; 
+  };
+
+  @Output() onDataLoaded = new EventEmitter<boolean>();
 
   selectedFilterValues: SelectedFilterDisplayValuesType = [];
   finalSelectedFilterValuesToDisplay: SelectedFilterDisplayValuesType = [];
@@ -347,10 +349,13 @@ export class TisSmartTableViewerComponent {
 
         this.loadingSubscription = this.dataSource.loading$.subscribe(loading => {
           console.log('[table-list-view-wrapper]: dataSource loading:', loading);
-          if (!loading && this._paginator) {
-            this._paginator.pageIndex = this.pageIndex;
-            this._paginator.pageSize = this.pageSize;
+          if (!loading) {
+            if(this._paginator){
+              this._paginator.pageIndex = this.pageIndex;
+              this._paginator.pageSize = this.pageSize;
+            }
             this.checkAllRowsSelected();
+            this.onDataLoaded.emit(true);
             if (this.selectedRowIds && this.selectedRowIds.length) {
               setTimeout(() => {
                 this.setSelectedRows();
