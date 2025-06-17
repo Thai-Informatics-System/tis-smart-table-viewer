@@ -104,7 +104,7 @@ export class AppComponent {
   columnCustomizationUrlConfig!: ColumnCustomizationUrlConfig;
 
   selectedRows: any[] = [];
-  selectedRowIds: any[] = ["1816", "1915"];
+  selectedRowIds: (number | string)[] = ["1816", "1915"];
 
   rowsConfig: SmartTableWrapperRowsConfig = {
     backgroundApplyFunction: (row: any) => {

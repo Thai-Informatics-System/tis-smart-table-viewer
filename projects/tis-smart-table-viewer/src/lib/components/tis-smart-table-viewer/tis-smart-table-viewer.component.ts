@@ -153,7 +153,7 @@ export class TisSmartTableViewerComponent {
   @Input() enableRowsSelection = false;
   @Input() enableAllRowsSelection = false;
   @Input() onlySingleSelection = false;
-  @Input() selectedRowIds!: number[];
+  @Input() selectedRowIds!: (number | string)[];
   @Input() selectedRows!: any[];
   @Output() selectedRowsChange = new EventEmitter<any>();
 
