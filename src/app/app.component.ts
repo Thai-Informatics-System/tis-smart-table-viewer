@@ -122,6 +122,9 @@ export class AppComponent {
   ) { }
 
   ngOnInit(): void {
+    setTimeout(() => {
+      this.selectedRowIds = [...this.selectedRowIds, "1717"];
+    }, 5000);
     this.columnCustomizationUrlConfig = {
       list: '/user-customization/get-columns-templates',
       add: '/user-customization/add-columns-template',

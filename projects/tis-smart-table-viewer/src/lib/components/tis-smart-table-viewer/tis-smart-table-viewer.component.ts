@@ -154,6 +154,7 @@ export class TisSmartTableViewerComponent {
   @Input() enableAllRowsSelection = false;
   @Input() onlySingleSelection = false;
   @Input() selectedRowIds!: (number | string)[];
+  @Input() selectedRowKey: string = 'id';
   @Input() selectedRows!: any[];
   @Output() selectedRowsChange = new EventEmitter<any>();
 
@@ -849,7 +850,7 @@ export class TisSmartTableViewerComponent {
   setSelectedRows(){
     this.selection.clear();
     this.dataSource.apiSubject.value.forEach(row => {
-      if(this.selectedRowIds.indexOf(row.id) != -1){
+      if(this.selectedRowIds.indexOf(row[this.selectedRowKey]) != -1){
         this.selection.select(row);
       }
     });
