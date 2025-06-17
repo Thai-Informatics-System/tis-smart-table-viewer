@@ -355,11 +355,13 @@ export class TisSmartTableViewerComponent {
               this._paginator.pageSize = this.pageSize;
             }
             this.checkAllRowsSelected();
-            this.onDataLoaded.emit(true);
+            setTimeout(() => {
+              this.onDataLoaded.emit(true);
+            }, 200);
             // if (this.selectedRowIds && this.selectedRowIds.length) {
             //   setTimeout(() => {
             //     this.setSelectedRows();
-            //   }, 300);
+            //   }, 200);
             // }
           }
         });
