@@ -356,11 +356,11 @@ export class TisSmartTableViewerComponent {
             }
             this.checkAllRowsSelected();
             this.onDataLoaded.emit(true);
-            if (this.selectedRowIds && this.selectedRowIds.length) {
-              setTimeout(() => {
-                this.setSelectedRows();
-              }, 300);
-            }
+            // if (this.selectedRowIds && this.selectedRowIds.length) {
+            //   setTimeout(() => {
+            //     this.setSelectedRows();
+            //   }, 300);
+            // }
           }
         });
 
