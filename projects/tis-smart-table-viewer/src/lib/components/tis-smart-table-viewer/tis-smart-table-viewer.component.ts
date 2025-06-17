@@ -355,9 +355,7 @@ export class TisSmartTableViewerComponent {
               this._paginator.pageSize = this.pageSize;
             }
             this.checkAllRowsSelected();
-            setTimeout(() => {
-              this.onDataLoaded.emit(true);
-            }, 200);
+            this.onDataLoaded.emit(true);
             // if (this.selectedRowIds && this.selectedRowIds.length) {
             //   setTimeout(() => {
             //     this.setSelectedRows();
@@ -399,9 +397,7 @@ export class TisSmartTableViewerComponent {
     if (changes['selectedRowIds']) {
       this.selectedRowIds = changes['selectedRowIds'].currentValue;
       if (this.selectedRowIds && this.selectedRowIds.length) {
-        setTimeout(() => {
-          this.setSelectedRows();
-        }, 300);
+        this.setSelectedRows();
       }
     }
 
