@@ -153,6 +153,7 @@ export class TisSmartTableViewerComponent {
   @Input() enableRowsSelection = false;
   @Input() enableAllRowsSelection = false;
   @Input() onlySingleSelection = false;
+  @Input() selectedRowIds!: number[];
   @Input() selectedRows!: any[];
   @Output() selectedRowsChange = new EventEmitter<any>();
 
@@ -349,6 +350,11 @@ export class TisSmartTableViewerComponent {
             this._paginator.pageIndex = this.pageIndex;
             this._paginator.pageSize = this.pageSize;
             this.checkAllRowsSelected();
+            if (this.selectedRowIds && this.selectedRowIds.length) {
+              setTimeout(() => {
+                this.setSelectedRows();
+              }, 300);
+            }
           }
         });
 
@@ -379,6 +385,15 @@ export class TisSmartTableViewerComponent {
       this.selectedRows = changes['selectedRows'].currentValue;
       if (this.selectedRows && this.selectedRows.length) {
         // TODO:: Leave for now.....  (Not able to decide whether in future we need to pass whole row or ids only)
+      }
+    }
+
+    if (changes['selectedRowIds']) {
+      this.selectedRowIds = changes['selectedRowIds'].currentValue;
+      if (this.selectedRowIds && this.selectedRowIds.length) {
+        setTimeout(() => {
+          this.setSelectedRows();
+        }, 300);
       }
     }
 
@@ -829,6 +844,17 @@ export class TisSmartTableViewerComponent {
     } else if (config?.secondBtnUrl) {
       this.goToUrl(config.secondBtnUrl);
     }
+  }
+
+  setSelectedRows(){
+    this.selection.clear();
+    this.dataSource.apiSubject.value.forEach(row => {
+      if(this.selectedRowIds.indexOf(row.id) != -1){
+        this.selection.select(row);
+      }
+    });
+    this.selectedRows = this.selection.selected;
+    this.selectedRowsChange.emit(this.selectedRows);
   }
 
   public resetSelectedRows(){
