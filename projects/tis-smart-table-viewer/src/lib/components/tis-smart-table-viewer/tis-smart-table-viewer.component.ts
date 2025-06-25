@@ -164,9 +164,13 @@ export class TisSmartTableViewerComponent {
   selectedIds: Set<number | string> = new Set();
   isAllRowsSelected = false;
 
-
   @Input() enableDragNDrop = false;
   @Output() listDataSequenceChange = new EventEmitter<any>();
+  
+  @Input() isExpansion: boolean = false;
+  @Input() isExpandedRow: boolean = false;
+  @Input() expandedTemplate: any;
+  expandedElement: any;
 
   isHandset$!: Observable<boolean>;
   isMobile: boolean = false;
@@ -866,5 +870,17 @@ export class TisSmartTableViewerComponent {
     this.selection.clear();
     this.selectedRows = this.selection.selected;
     this.selectedRowsChange.emit(this.selectedRows);
+  }
+
+  /** Toggles the expanded state of an element. */
+  public toggleExpand(element: any) {
+    if(this.isExpansion){
+      if(!element?.expanded){
+        element.expanded = true;
+      }
+      else{
+        element.expanded = false;
+      }
+    }
   }
 }

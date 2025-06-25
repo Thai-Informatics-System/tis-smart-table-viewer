@@ -190,6 +190,10 @@ export class AppComponent {
     this.tableListViewWrapperComponent.resetSelectedRows();
   }
 
+  toggleExpand(element: any){
+    this.tableListViewWrapperComponent.toggleExpand(element);
+  }
+
   get getLanguageJson(){
     let translations = this.translocoService.translateObject('serviceRequestListComponent', {}, 'serviceManagement');
     // console.log("==== translation::getLanguageJson ====", translations);

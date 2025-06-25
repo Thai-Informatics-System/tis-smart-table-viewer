@@ -44,6 +44,20 @@
     overflow: auto;
 }
 
+.tis-detail-row{
+    height: 0 !important;
+}
+
+.tis-element-detail-wrapper {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 225ms ease;
+}
+
+.tis-element-detail-wrapper-expanded {
+  max-height: 500px; /* Or a large enough value to fit the content */
+}
+
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {
     .search-mat-form-field {

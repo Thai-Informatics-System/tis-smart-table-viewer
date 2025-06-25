@@ -11,7 +11,9 @@
                     desc: t('noDataFoundDescription'),
                     btnText: t('addNew'),
                     btnUrl: '/admin/service-management/cases/add'}
-                " [enableRowsSelection]="true" [enableAllRowsSelection]="true" [selectedRowIds]="selectedRowIds" (selectedRowsChange)="selectedRowsChanged($event)" (onDataLoaded)="onDataLoaded($event)">
+                "
+                [enableRowsSelection]="true" [enableAllRowsSelection]="true" [selectedRowIds]="selectedRowIds" (selectedRowsChange)="selectedRowsChanged($event)"
+                (onDataLoaded)="onDataLoaded($event)" [isExpansion]="true" [isExpandedRow]="true" [expandedTemplate]="expandedDetailTemplate">
 
                 <!--Filter Buttons-->
                 <ng-container slot="filter-button-section">
@@ -91,20 +93,24 @@
                 </ng-template>
 
                 <ng-template let-column="colDef" let-element="colData" #sourceOfReColumnTemplate>
-                    <span class="tis-badge-round tis-badge-outline-primary">
-                        {{element.sourceOfRequest == 2 ? t('tenantApp') : t('webApp')}}
-                    </span>
+                    <div class="tis-curser-pointer flex gap-1 items-center" (click)="toggleExpand(element)">
+                        <mat-icon *ngIf="!element?.expanded">keyboard_arrow_right</mat-icon>
+                        <mat-icon *ngIf="element?.expanded">keyboard_arrow_down</mat-icon>
+                        <span class="tis-badge-round tis-badge-outline-primary">
+                            {{element.sourceOfRequest == 2 ? t('tenantApp') : t('webApp')}}
+                        </span>
+                    </div>
                 </ng-template>
 
                 <ng-template let-column="colDef" let-element="colData" #statusColumnTemplate>
                     <span class="tis-badge-round" [ngClass]="{
-                                'tis-badge-outline-success': element?.statusCode == 'NEW' || element?.statusCode == 'COM',
-                                'tis-badge-success': element?.statusCode == 'CLS',
-                                'tis-badge-outline-danger': element?.statusCode == 'CNL',
-                                'tis-badge-outline-primary': element?.statusCode == 'ACK',
-                                'tis-badge-outline-warning': element?.statusCode == 'ASN',
-                                'tis-badge-outline-info': element?.statusCode == 'IP',
-                            }">
+                        'tis-badge-outline-success': element?.statusCode == 'NEW' || element?.statusCode == 'COM',
+                        'tis-badge-success': element?.statusCode == 'CLS',
+                        'tis-badge-outline-danger': element?.statusCode == 'CNL',
+                        'tis-badge-outline-primary': element?.statusCode == 'ACK',
+                        'tis-badge-outline-warning': element?.statusCode == 'ASN',
+                        'tis-badge-outline-info': element?.statusCode == 'IP',
+                    }">
                         {{element?.statusName}}
                     </span>
                 </ng-template>
@@ -121,6 +127,12 @@
                                 </button>
                             </li> -->
                     </ul>
+                </ng-template>
+
+                <ng-template let-column="colDef" let-element="colData" #expandedDetailTemplate>
+                    <div class="w-full">
+                        {{element | json}}
+                    </div>
                 </ng-template>
                 <!-- TABLE END -->
             </tis-smart-table-viewer>
