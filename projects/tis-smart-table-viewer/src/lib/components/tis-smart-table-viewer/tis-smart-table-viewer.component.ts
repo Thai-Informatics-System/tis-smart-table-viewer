@@ -886,9 +886,11 @@ export class TisSmartTableViewerComponent {
   }
 
   public expandAllRow(){
-    this.isAllExpanded = !this.isAllExpanded;
-    this.dataSource.apiSubject.value.forEach(row => {
-      row.expanded = this.isAllExpanded;
-    });
+    if(this.isExpansion){
+      this.isAllExpanded = !this.isAllExpanded;
+      this.dataSource.apiSubject.value.forEach(row => {
+        row.expanded = this.isAllExpanded;
+      });
+    }
   }
 }
