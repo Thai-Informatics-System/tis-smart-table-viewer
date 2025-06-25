@@ -61,6 +61,7 @@ export class AppComponent {
     { name: "scheduledDate", type: 'date-time-with-seconds', serverKeyCode: "scheduledAt", valueKey: 'scheduledAt', sort: true },
     { name: "dateClosed", type: 'date-time-with-seconds', serverKeyCode: "dateClosed", valueKey: 'dateClosed', sort: true },
     { name: "createdBy", type: 'string', serverKeyCode: "createdByName", valueKey: 'createdByName', sort: false },
+    { name: "expand", type: 'expand', serverKeyCode: "m.meterNumber", template: this.expandColumnTemplate, sort: false },
   ];
 
   columnsCodeMapping: SmartTableWrapperColumnsConfig[] = this.defaultColumnsCodeMapping;
@@ -91,6 +92,10 @@ export class AppComponent {
 
   @ViewChild('actionColumnTemplate') set actionColumnTemplate(value: TemplateRef<any>) {
     this.setColumnTemplateMapping('action', value);
+  }
+
+  @ViewChild('expandColumnTemplate') set expandColumnTemplate(value: TemplateRef<any>) {
+    this.setColumnTemplateMapping('expand', value);
   }
 
   pageSize = 10;

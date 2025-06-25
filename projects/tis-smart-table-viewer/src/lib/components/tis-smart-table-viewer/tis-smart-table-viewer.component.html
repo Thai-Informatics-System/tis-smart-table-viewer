@@ -130,7 +130,16 @@
                                     @for(column of autoRenderColumns; track column.serverKeyCode; let i = $index; let l = $last){
                                         <!-- [sticky]="i < startStickyColumnCount" [stickyEnd]="i > (autoRenderColumns?.length - endStickyColumnCount)" -->
                                         <ng-container [matColumnDef]="column.name" [sticky]="isStickyStart(column.name)" [stickyEnd]="isStickyEnd(column.name)">
-                                            @if(column.sort) {
+                                            @if(column.type == 'expand') {
+                                                <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
+                                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                                        <span>{{ t[column.name] }}</span>
+                                                        <mat-icon *ngIf="!isAllExpanded">expand_more</mat-icon>
+                                                        <mat-icon *ngIf="isAllExpanded">expand_less</mat-icon>
+                                                    </div>
+                                                </th>
+                                            }
+                                            @else if(column.sort) {
                                                 <th mat-header-cell mat-sort-header *matHeaderCellDef [ngClass]="getColumnClasses(column)">
                                                     {{ t[column.name] }}
                                                 </th>
@@ -180,7 +189,16 @@
                                     @for(column of templateRenderColumns; track column.serverKeyCode; let i = $index; let l = $last){
                                         <!-- [sticky]="i < startStickyColumnCount" [stickyEnd]="l" -->
                                         <ng-container [matColumnDef]="column.name"  [sticky]="isStickyStart(column.name)" [stickyEnd]="isStickyEnd(column.name)">
-                                            @if(column.sort) {
+                                            @if(column.type == 'expand') {
+                                                <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
+                                                    <div style="display: flex; align-items: center; gap: 5px; cursor: pointer;" (click)="expandAllRow()">
+                                                        <span>{{ t[column.name] }}</span>
+                                                        <mat-icon *ngIf="!isAllExpanded">expand_more</mat-icon>
+                                                        <mat-icon *ngIf="isAllExpanded">expand_less</mat-icon>
+                                                    </div>
+                                                </th>
+                                            }
+                                            @else if(column.sort) {
                                                 <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="getColumnClasses(column)">
                                                     {{ t[column.name] }}
                                                 </th>

@@ -129,6 +129,14 @@
                     </ul>
                 </ng-template>
 
+                <ng-template let-column="colDef" let-element="colData" #expandColumnTemplate>
+                    <!-- (click)="toggleExpand(element)" -->
+                    <button mat-icon-button>
+                        <mat-icon *ngIf="!element?.expanded">expand_more</mat-icon>
+                        <mat-icon *ngIf="element?.expanded">expand_less</mat-icon>
+                    </button>
+                </ng-template>
+
                 <ng-template let-column="colDef" let-element="colData" #expandedDetailTemplate>
                     <div class="w-full">
                         {{element | json}}

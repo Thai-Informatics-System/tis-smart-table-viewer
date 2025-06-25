@@ -53,6 +53,7 @@
         "serviceRequestType": "Service Request Type",
         "scheduledDate": "Scheduled Date",
         "dateClosed": "Date Closed",
+        "expand": "Expand",
         "viewDescription": {
             "title": "Description",
             "cancelButtonText": "Ok"

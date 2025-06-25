@@ -170,7 +170,7 @@ export class TisSmartTableViewerComponent {
   @Input() isExpansion: boolean = false;
   @Input() isExpandedRow: boolean = false;
   @Input() expandedTemplate: any;
-  expandedElement: any;
+  isAllExpanded: boolean = false;
 
   isHandset$!: Observable<boolean>;
   isMobile: boolean = false;
@@ -601,6 +601,7 @@ export class TisSmartTableViewerComponent {
   }
 
   public getList(forceFromObject = false) {
+    this.isAllExpanded = false;
     const filterFormData = this.filterFormGroup?.value;
 
     let qs: any = new URLSearchParams();
@@ -882,5 +883,12 @@ export class TisSmartTableViewerComponent {
         element.expanded = false;
       }
     }
+  }
+
+  public expandAllRow(){
+    this.isAllExpanded = !this.isAllExpanded;
+    this.dataSource.apiSubject.value.forEach(row => {
+      row.expanded = this.isAllExpanded;
+    });
   }
 }
