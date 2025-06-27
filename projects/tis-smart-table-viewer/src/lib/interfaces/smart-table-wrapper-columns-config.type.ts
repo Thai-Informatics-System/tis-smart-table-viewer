@@ -2,6 +2,8 @@ import { TemplateRef } from "@angular/core";
 
 export interface SmartTableWrapperColumnsConfig {
     name: string;
+    columnName?: string;
+    columnDef?: string;
     type: 'string' | 'number' | 'quantity' | 'money' | 'date' | 'date-time' | 'date-time-with-seconds' | 'action' | 'expand';
     align?: 'left' | 'right' | 'center' | null;
     serverKeyCode: string;

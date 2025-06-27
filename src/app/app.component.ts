@@ -60,7 +60,7 @@ export class AppComponent {
     { name: "dateCreated", type: 'date-time-with-seconds', serverKeyCode: "createdAt", valueKey: 'createdAt', sort: true },
     { name: "scheduledDate", type: 'date-time-with-seconds', serverKeyCode: "scheduledAt", valueKey: 'scheduledAt', sort: true },
     { name: "dateClosed", type: 'date-time-with-seconds', serverKeyCode: "dateClosed", valueKey: 'dateClosed', sort: true },
-    { name: "createdBy", type: 'string', serverKeyCode: "createdByName", valueKey: 'createdByName', sort: false },
+    { name: "createdBy", columnDef: "createdByy", columnName: "Created Byyyy", type: 'string', serverKeyCode: "createdByName", valueKey: 'createdByName', sort: false },
     { name: "expand", type: 'expand', serverKeyCode: "m.meterNumber", template: this.expandColumnTemplate, sort: false },
   ];
 
@@ -100,7 +100,7 @@ export class AppComponent {
 
   pageSize = 10;
   pageIndex = 0;
-  loadDataApiBaseUrl = `https://mocki.io/v1/e5774f40-933a-41cf-8005-1921f7ee4dcc`;
+  loadDataApiBaseUrl = `https://mocki.io/v1/43a263d7-c315-495d-9d5b-25a94edba385`;
   filterData!: any;
 
   filterFormGroup!: FormGroup;
@@ -213,5 +213,13 @@ export class AppComponent {
   onDataLoaded(status: boolean) {
     this.selectedRowIds = ["1816", "1915", "1717"];
     // alert(true);
+  }
+
+  onSetExtraData(data: any) {
+    console.log("=== onSetExtraData ===", data);
+  }
+
+  onSetTotal(total: number) {
+    console.log("=== onSetTotal ===", total);
   }
 }

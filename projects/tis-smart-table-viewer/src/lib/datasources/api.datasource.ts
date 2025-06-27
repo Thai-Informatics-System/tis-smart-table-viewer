@@ -8,6 +8,7 @@ export class ApiDataSource implements DataSource<any> {
     private apiSubs!: Subscription;
 
     apiSubject = new BehaviorSubject<any[]>([]);
+    extraDataSubject = new BehaviorSubject<any>(null);
 
     private loadingSubject = new BehaviorSubject<boolean>(false);
     public loading$ = this.loadingSubject.asObservable();
@@ -25,6 +26,7 @@ export class ApiDataSource implements DataSource<any> {
 
     disconnect(collectionViewer: CollectionViewer): void {
         this.apiSubject.complete();
+        this.extraDataSubject.complete();
         this.loadingSubject.complete();
     }
 
@@ -47,6 +49,7 @@ export class ApiDataSource implements DataSource<any> {
                 this.totalDataLength.next(0);
             }
             this.apiSubject.next(r?.data);
+            this.extraDataSubject.next(r?.extraData);
         });
     }
 }

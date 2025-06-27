@@ -90,6 +90,8 @@ export class TisSmartTableViewerComponent {
   };
 
   @Output() onDataLoaded = new EventEmitter<boolean>();
+  @Output() onSetExtraData = new EventEmitter<any>();
+  @Output() onSetTotal = new EventEmitter<number>();
 
   selectedFilterValues: SelectedFilterDisplayValuesType = [];
   finalSelectedFilterValuesToDisplay: SelectedFilterDisplayValuesType = [];
@@ -360,6 +362,7 @@ export class TisSmartTableViewerComponent {
             }
             this.checkAllRowsSelected();
             this.onDataLoaded.emit(true);
+            this.onSetExtraData.emit(this.dataSource.extraDataSubject.value);
             // if (this.selectedRowIds && this.selectedRowIds.length) {
             //   setTimeout(() => {
             //     this.setSelectedRows();
@@ -372,6 +375,7 @@ export class TisSmartTableViewerComponent {
           console.log('[table-list-view-wrapper]: dataSource total:', total);
           if (total !== null) {
             this.initialLoading = false;
+            this.onSetTotal.emit(total);
             // console.log('[table-list-view-wrapper]: dataSource total total:', total);
           }
         });
@@ -440,7 +444,7 @@ export class TisSmartTableViewerComponent {
       this.displayedColumns = this.defaultDisplayedColumns.filter(c => columnsSet.has(c));
 
     } else {
-      this.displayedColumns = this.columnsCodeMapping.map(c => c.name);
+      this.displayedColumns = this.columnsCodeMapping.map(c => c?.columnDef || c.name);
     }
 
     if (this.enableRowsSelection) {

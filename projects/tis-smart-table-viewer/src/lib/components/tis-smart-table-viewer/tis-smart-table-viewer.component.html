@@ -129,11 +129,11 @@
 
                                     @for(column of autoRenderColumns; track column.serverKeyCode; let i = $index; let l = $last){
                                         <!-- [sticky]="i < startStickyColumnCount" [stickyEnd]="i > (autoRenderColumns?.length - endStickyColumnCount)" -->
-                                        <ng-container [matColumnDef]="column.name" [sticky]="isStickyStart(column.name)" [stickyEnd]="isStickyEnd(column.name)">
+                                        <ng-container [matColumnDef]="column?.columnDef || column.name" [sticky]="isStickyStart(column?.columnDef || column.name)" [stickyEnd]="isStickyEnd(column?.columnDef || column.name)">
                                             @if(column.type == 'expand') {
                                                 <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
                                                     <div style="display: flex; align-items: center; gap: 5px;">
-                                                        <span>{{ t[column.name] }}</span>
+                                                        <span>{{ column?.columnName ? column?.columnName : t[column.name] }}</span>
                                                         <mat-icon *ngIf="!isAllExpanded">expand_more</mat-icon>
                                                         <mat-icon *ngIf="isAllExpanded">expand_less</mat-icon>
                                                     </div>
@@ -141,11 +141,12 @@
                                             }
                                             @else if(column.sort) {
                                                 <th mat-header-cell mat-sort-header *matHeaderCellDef [ngClass]="getColumnClasses(column)">
-                                                    {{ t[column.name] }}
+                                                    {{ column?.columnName ? column?.columnName : t[column.name] }}
                                                 </th>
-                                            } @else {
+                                            }
+                                            @else {
                                                 <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
-                                                    {{ t[column.name] }}
+                                                    {{ column?.columnName ? column?.columnName : t[column.name] }}
                                                 </th>
                                             }
                                             
@@ -188,11 +189,11 @@
 
                                     @for(column of templateRenderColumns; track column.serverKeyCode; let i = $index; let l = $last){
                                         <!-- [sticky]="i < startStickyColumnCount" [stickyEnd]="l" -->
-                                        <ng-container [matColumnDef]="column.name"  [sticky]="isStickyStart(column.name)" [stickyEnd]="isStickyEnd(column.name)">
+                                        <ng-container [matColumnDef]="column?.columnDef || column.name"  [sticky]="isStickyStart(column?.columnDef || column.name)" [stickyEnd]="isStickyEnd(column?.columnDef || column.name)">
                                             @if(column.type == 'expand') {
                                                 <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
                                                     <div style="display: flex; align-items: center; gap: 5px; cursor: pointer;" (click)="expandAllRow()">
-                                                        <span>{{ t[column.name] }}</span>
+                                                        <span>{{ column?.columnName ? column?.columnName : t[column.name] }}</span>
                                                         <mat-icon *ngIf="!isAllExpanded">expand_more</mat-icon>
                                                         <mat-icon *ngIf="isAllExpanded">expand_less</mat-icon>
                                                     </div>
@@ -200,11 +201,12 @@
                                             }
                                             @else if(column.sort) {
                                                 <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="getColumnClasses(column)">
-                                                    {{ t[column.name] }}
+                                                    {{ column?.columnName ? column?.columnName : t[column.name] }}
                                                 </th>
-                                            } @else {
+                                            }
+                                            @else {
                                                 <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
-                                                    {{ t[column.name] }}
+                                                    {{ column?.columnName ? column?.columnName : t[column.name] }}
                                                 </th>
                                             }
                                             <td mat-cell *matCellDef="let element" class="4al-{{column.align}} 4ty-{{column.type}}" [ngClass]="getColumnClasses(column)">

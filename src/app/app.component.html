@@ -13,7 +13,7 @@
                     btnUrl: '/admin/service-management/cases/add'}
                 "
                 [enableRowsSelection]="true" [enableAllRowsSelection]="true" [selectedRowIds]="selectedRowIds" (selectedRowsChange)="selectedRowsChanged($event)"
-                (onDataLoaded)="onDataLoaded($event)" [isExpansion]="true" [isExpandedRow]="true" [expandedTemplate]="expandedDetailTemplate">
+                (onDataLoaded)="onDataLoaded($event)" (onSetExtraData)="onSetExtraData($event)" (onSetTotal)="onSetTotal($event)" [isExpansion]="true" [isExpandedRow]="true" [expandedTemplate]="expandedDetailTemplate">
 
                 <!--Filter Buttons-->
                 <ng-container slot="filter-button-section">
