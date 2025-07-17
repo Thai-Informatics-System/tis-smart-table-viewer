@@ -478,7 +478,7 @@ export class TisSmartTableViewerComponent {
     if (!path) return null;
     // If there is no '.', just return the direct property
     if (!path.includes('.')) {
-      return obj ? obj[path] : null;
+      return obj && obj[path] ? obj[path] : null;
     }
     // Otherwise, traverse the nested properties
     return path.split('.').reduce((acc, part) => acc && acc[part], obj);
