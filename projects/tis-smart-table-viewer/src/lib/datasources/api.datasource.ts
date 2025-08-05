@@ -28,6 +28,10 @@ export class ApiDataSource implements DataSource<any> {
         this.apiSubject.complete();
         this.extraDataSubject.complete();
         this.loadingSubject.complete();
+
+        // if(this.apiSubs) {
+        //     this.apiSubs.unsubscribe();
+        // }
     }
 
     load(url: string, pageIndex: number, pageSize: number, search: string, filter?: object, sortFilter?: object) {

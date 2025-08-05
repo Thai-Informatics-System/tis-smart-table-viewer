@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, Subject, takeUntil, tap, Observable, map, shareReplay, distinctUntilChanged, debounceTime } from 'rxjs';
 import type { SmartTableWrapperRowsConfig } from '../../interfaces';
 import { AnyKeyValueObject, SelectedFilterDisplayValuesType, SelectedFilterDisplayValueType, SelectedFiltersGroupedValuesType, SmartTableWrapperColumnsConfig } from '../../interfaces';
-import { SelectionModel } from '@angular/cdk/collections';
+import { CollectionViewer, SelectionModel } from '@angular/cdk/collections';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ApiDataSource } from '../../datasources/api.datasource';
 import { ApiService } from '../../services/api.service';
@@ -103,6 +103,7 @@ export class TisSmartTableViewerComponent {
   filterApplied = false;
   resetFlag = false;
   initialLoading = true;
+  displayAfterFilterRemoved = false;
 
   filterFromQueryParams: any = {};
   sortFromQueryParams: any = {};
@@ -426,6 +427,8 @@ export class TisSmartTableViewerComponent {
     this.loadingSubscription?.unsubscribe();
     this.dataLengthSubscription?.unsubscribe();
     this.filterFormGroupSubscription?.unsubscribe();
+
+    // this.dataSource.disconnect({} as CollectionViewer); // stops API calls
   }
 
   setDefaultColumns() {
@@ -576,6 +579,8 @@ export class TisSmartTableViewerComponent {
       this.filterFormGroup.get(f.formControlName)?.reset();
     }
     this.selectedFilterValues = this.selectedFilterValues.filter(sfv => !(sfv.formControlName == f.formControlName && sfv.valueKey == f.valueKey));
+
+    this.displayAfterFilterRemoved = true;
     
     setTimeout(() => {
       this.filterRecords();

@@ -26,7 +26,7 @@
             } @else {
 
                 @if ((dataSource?.totalDataLength$ | async) || (dataSource?.loading$ | async) || search ||
-                filterHasNonEmptyValue || showFilterButtonSection) {
+                filterHasNonEmptyValue || showFilterButtonSection || displayAfterFilterRemoved) {
                     <div class="tis-table-container">
                         @if(!hideTableHeader){
                             <div class="tis-table-container-header">

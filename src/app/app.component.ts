@@ -23,6 +23,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ClientSideMultipleSelectionConfig, ClientSideSingleSelectionConfig, ServerSideSingleSelectionConfig, TisSearchAndSelectDropdownModule } from '@servicemind.tis/tis-search-and-select-dropdown';
+
 
 const uiImports = [
   MatTooltipModule,
@@ -34,12 +36,13 @@ const uiImports = [
   LayoutModule, // For Breakpoint Observer,
   ScrollingModule, // For cdk-virtual-scroll
   MatSortModule,
+  TisSearchAndSelectDropdownModule
 ];
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, TranslocoModule, TisSmartTableViewerModule, CommonModule, FormsModule, ReactiveFormsModule, RouterLink, ...uiImports],
-  providers: [provideTranslocoScope('serviceManagement')],
+  providers: [provideTranslocoScope('common')],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -47,60 +50,65 @@ export class AppComponent {
   title = 'tis-ng-smart-table-viewer';
   @ViewChild('mainTableWrapper') tableListViewWrapperComponent!: TisSmartTableViewerComponent;
 
-  defaultColumnsCodeMapping: SmartTableWrapperColumnsConfig[] = [
-    { name: "action", type: 'action', serverKeyCode: "action", template: this.actionColumnTemplate, sort: false },
-    { name: "caseNumber", type: 'string', serverKeyCode: "displayId", valueKey: 'displayId', sort: true, clickFn: this.detailsRecord.bind(this) },
-    { name: "image", type: 'string', serverKeyCode: "image", template: this.imageColumnTemplate, sort: false },
+  columnsCodeMapping: SmartTableWrapperColumnsConfig[] = [
+    { name: "submissionDate", type: 'date', serverKeyCode: "submittedAt", valueKey: 'submittedAt', sort: true },
+    { name: "documentNo", type: 'string', serverKeyCode: "documentNumber", valueKey: 'documentNumber', sort: true, },
+    // { name: "company", type: 'string', serverKeyCode: "companyName", valueKey: 'companyName', sort: true },
+    { name: "title", type: 'string', serverKeyCode: "title", template: this.titleColumnTemplate, sort: true },
     { name: "description", type: 'string', serverKeyCode: "description", template: this.descriptionColumnTemplate, sort: true },
-    { name: "serviceRequestType", type: 'string', serverKeyCode: "serviceRequestTypeName", valueKey: 'serviceRequestTypeName', sort: true, clickFn: this.detailsRecord.bind(this) },
-    { name: "reportedHouse", type: 'string', serverKeyCode: "reportedByUnitHouse", valueKey: 'reportedByUnitHouse', sort: true },
-    { name: "reportedResident", type: 'string', serverKeyCode: "reportedBy", valueKey: 'reportedBy', sort: true },
-    { name: "sourceOfRequest", type: 'string', serverKeyCode: "sourceOfRequest", template: this.sourceOfReColumnTemplate, sort: true },
-    { name: "status", type: 'string', serverKeyCode: "cmStatusId", template: this.statusColumnTemplate, sort: true },
-    { name: "dateCreated", type: 'date-time-with-seconds', serverKeyCode: "createdAt", valueKey: 'createdAt', sort: true },
-    { name: "scheduledDate", type: 'date-time-with-seconds', serverKeyCode: "scheduledAt", valueKey: 'scheduledAt', sort: true },
-    { name: "dateClosed", type: 'date-time-with-seconds', serverKeyCode: "dateClosed", valueKey: 'dateClosed', sort: true },
-    { name: "createdBy", columnDef: "createdByy", columnName: "Created Byyyy", type: 'string', serverKeyCode: "createdByName", valueKey: 'createdByName', sort: false },
-    { name: "expand", type: 'expand', serverKeyCode: "m.meterNumber", template: this.expandColumnTemplate, sort: false },
+    // { name: "documentType", type: 'string', serverKeyCode: "documentType", valueKey: 'documentType', sort: true },
+    // { name: "routingType", type: 'string', serverKeyCode: "routingType", valueKey: 'routingTypeName', sort: true },
+    // { name: "deliveryMethod", type: 'string', serverKeyCode: "deliveryMethod", valueKey: 'deliveryMethodName', sort: true },
+    { name: "initiator", type: 'string', serverKeyCode: "initiatorName", valueKey: 'initiatorName', sort: true },
+    { name: "owner", type: 'string', serverKeyCode: "ownerName", valueKey: 'ownerName', sort: true },
+    { name: "documentStatus", type: 'string', serverKeyCode: "currentDocumentStatus", template: this.documentStatusColumnTemplate, sort: true },
+    { name: "trackingStatus", type: 'string', serverKeyCode: "currentTrackingStatus", template: this.trackingStatusColumnTemplate, sort: true },
+    // { name: "dateCreated", type: 'date', serverKeyCode: "createdAt", valueKey: 'createdAt', sort: true },
+    { name: "lastUpdated", type: 'date', serverKeyCode: "updatedAt", valueKey: 'updatedAt', sort: true },
+    { name: "lastUpdatedBy", type: 'string', serverKeyCode: "updatedByName", valueKey: 'updatedByName', sort: true },
+    { name: "action", type: 'action', serverKeyCode: "action", template: this.actionColumnTemplate, sort: false },
   ];
 
-  columnsCodeMapping: SmartTableWrapperColumnsConfig[] = this.defaultColumnsCodeMapping;
-
-  @ViewChild('imageColumnTemplate') set imageColumnTemplate(value: TemplateRef<any>) {
-    this.setColumnTemplateMapping('image', value);
-  }
-
-  @ViewChild('statusColumnTemplate') set statusColumnTemplate(value: TemplateRef<any>) {
-    this.setColumnTemplateMapping('status', value);
+  @ViewChild('titleColumnTemplate') set titleColumnTemplate(value: TemplateRef<any>) {
+    this.setColumnTemplateMapping('title', value);
   }
 
   @ViewChild('descriptionColumnTemplate') set descriptionColumnTemplate(value: TemplateRef<any>) {
     this.setColumnTemplateMapping('description', value);
   }
 
-  @ViewChild('sourceOfReColumnTemplate') set sourceOfReColumnTemplate(value: TemplateRef<any>) {
-    this.setColumnTemplateMapping('sourceOfRequest', value);
+  @ViewChild('documentStatusColumnTemplate') set documentStatusColumnTemplate(value: TemplateRef<any>) {
+    this.setColumnTemplateMapping('documentStatus', value);
   }
 
-  @ViewChild('dateColumnTemplate') set dateColumnTemplate(value: TemplateRef<any>) {
-    this.setColumnTemplateMapping('date', value);
-  }
-
-  @ViewChild('areaColumnTemplate') set areaColumnTemplate(value: TemplateRef<any>) {
-    this.setColumnTemplateMapping('area', value);
+  @ViewChild('trackingStatusColumnTemplate') set trackingStatusColumnTemplate(value: TemplateRef<any>) {
+    this.setColumnTemplateMapping('trackingStatus', value);
   }
 
   @ViewChild('actionColumnTemplate') set actionColumnTemplate(value: TemplateRef<any>) {
     this.setColumnTemplateMapping('action', value);
   }
 
-  @ViewChild('expandColumnTemplate') set expandColumnTemplate(value: TemplateRef<any>) {
-    this.setColumnTemplateMapping('expand', value);
-  }
+  documentStatusList: any[] = [
+    { id: 0, name: 'Draft' },
+    { id: 1, name: 'New' },
+    { id: 2, name: 'Pending' },
+    { id: 3, name: 'Approved' },
+    { id: 4, name: 'Rejected' },
+    { id: 5, name: 'Completed' },
+  ];
+
+  trackingStatusList: any[] = [
+    { id: 2, name: 'Ready for Pickup' },
+    { id: 3, name: 'Picked Up' },
+    { id: 4, name: 'Delivered' },
+    { id: 5, name: 'Received' },
+  ];
+
 
   pageSize = 10;
   pageIndex = 0;
-  loadDataApiBaseUrl = `https://mocki.io/v1/43a263d7-c315-495d-9d5b-25a94edba385`;
+  loadDataApiBaseUrl = `http://localhost:3000/dev/document-distribution/documents/get-actionable-documents`;
   filterData!: any;
 
   filterFormGroup!: FormGroup;
@@ -120,6 +128,70 @@ export class AppComponent {
       }
     }
   };
+
+  config = {
+    companyId: <ClientSideSingleSelectionConfig>{
+      uri: '/document-distribution/common/get-companies',
+      method: 'GET',
+      limit: 200,
+      isSearchable: true,
+      isAllOption: false,
+      isEnableRefreshMode: false,
+    },
+    documentStatusId: <ClientSideMultipleSelectionConfig>{
+      isSearchable: true,
+      isAllOption: false,
+      isEnableRefreshMode: false,
+    },
+    trackingStatusId: <ClientSideMultipleSelectionConfig>{
+      isSearchable: true,
+      isAllOption: false,
+      isEnableRefreshMode: false,
+    },
+    lastUpdatedById: <ServerSideSingleSelectionConfig>{
+      uri: '/document-distribution/common/get-user-list',
+      dataValueKey: 'data',
+      method: 'POST',
+      limit: 30,
+      isSearchable: true,
+      isAllOption: false,
+      isEnableRefreshMode: false,
+      clickRefreshBtn: true,
+      additionalName: {
+        keys: ['email'],
+        separators: ['(,)']
+      }
+    },
+    initiatorId: <ServerSideSingleSelectionConfig>{
+      uri: '/document-distribution/common/get-user-list',
+      dataValueKey: 'data',
+      method: 'POST',
+      limit: 30,
+      isSearchable: true,
+      isAllOption: false,
+      isEnableRefreshMode: false,
+      clickRefreshBtn: true,
+      additionalName: {
+        keys: ['email'],
+        separators: ['(,)']
+      }
+    },
+    ownerId: <ServerSideSingleSelectionConfig>{
+      uri: '/document-distribution/common/get-user-list',
+      dataValueKey: 'data',
+      method: 'POST',
+      limit: 30,
+      isSearchable: true,
+      isAllOption: false,
+      isEnableRefreshMode: false,
+      clickRefreshBtn: true,
+      additionalName: {
+        keys: ['email'],
+        separators: ['(,)']
+      }
+    },
+  };
+
 
   constructor(
     private router: Router,
@@ -147,7 +219,17 @@ export class AppComponent {
 
   createFilterForm() {
     this.filterFormGroup = new FormGroup({
-      type: new FormControl(null),
+      companyId: new FormControl(null),
+      documentStatusId: new FormControl(null),
+      trackingStatusId: new FormControl(null),
+      lastUpdatedById: new FormControl(null),
+      initiatorId: new FormControl(null),
+      ownerId: new FormControl(null),
+      fromDateCreated: new FormControl(null),
+      toDateCreated: new FormControl(null),
+      fromLastUpdated: new FormControl(null),
+      toLastUpdated: new FormControl(null),
+      showMyDocumentsOnly: new FormControl(null),
     });
   }
 
@@ -200,7 +282,7 @@ export class AppComponent {
   }
 
   get getLanguageJson(){
-    let translations = this.translocoService.translateObject('serviceRequestListComponent', {}, 'serviceManagement');
+    let translations = this.translocoService.translateObject('common', {}, 'common');
     // console.log("==== translation::getLanguageJson ====", translations);
     return translations;
   }
@@ -222,4 +304,5 @@ export class AppComponent {
   onSetTotal(total: number) {
     console.log("=== onSetTotal ===", total);
   }
+
 }
