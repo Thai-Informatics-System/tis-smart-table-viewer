@@ -553,6 +553,8 @@ export class TisSmartTableViewerComponent {
       }
     })
 
+    this.displayAfterFilterRemoved = true;
+
     // this.filterFromQueryParams
     this.getFinalSelectedFilterValuesToDisplay();
 
