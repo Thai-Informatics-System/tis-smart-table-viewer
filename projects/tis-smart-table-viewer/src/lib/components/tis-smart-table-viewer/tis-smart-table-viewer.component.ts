@@ -167,6 +167,7 @@ export class TisSmartTableViewerComponent {
   selection = new SelectionModel<any>(true, []);
   selectedIds: Set<number | string> = new Set();
   isAllRowsSelected = false;
+  @Output() allRowsSelectedChange = new EventEmitter<boolean>(false);
 
   @Input() enableDragNDrop = false;
   @Output() listDataSequenceChange = new EventEmitter<any>();
@@ -739,6 +740,7 @@ export class TisSmartTableViewerComponent {
 
   checkAllRowsSelected() {
     this.isAllRowsSelected = this.selection.selected.length === this.dataSource.apiSubject.value.length;
+    this.allRowsSelectedChange.emit(this.isAllRowsSelected);
   }
 
 
