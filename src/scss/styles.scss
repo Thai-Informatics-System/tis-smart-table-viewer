@@ -1323,7 +1323,7 @@ body {
 
   .tis-table-paginator {
     @extend .tis-bg-light;
-    border-top: 1px solid var(--mat-table-row-item-outline-color);
+    // border-top: 1px solid var(--mat-table-row-item-outline-color);
     border-radius: 0px 0px 5px 5px;
 
     mat-paginator {
@@ -2710,7 +2710,7 @@ body {
   .tis-table-container {
     .tis-table-paginator {
       @extend .tis-bg-light;
-      border-top: 1px solid var(--mat-table-row-item-outline-color);
+      // border-top: 1px solid var(--mat-table-row-item-outline-color);
       border-radius: 0px 0px 5px 5px;
 
       mat-paginator {

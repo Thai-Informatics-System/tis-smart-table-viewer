@@ -40,6 +40,7 @@ export class TisSmartTableViewerComponent {
   @Input() hideTableHeader = false;
   @Input() hidePaginator = false;
   @Input() keepFilterInUrl = true;
+  @Input() disableBorderedView = false;
   @Input() displayColumnsSelectionButton = true;
   @Input() loadDataApiBaseUrl!: string;
   @Input() startStickyColumnCount!: number;
