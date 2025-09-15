@@ -14,6 +14,8 @@ export class TisDatePipe implements PipeTransform {
       return DateTime.fromMillis(value).toFormat('dd MMM yyyy');
     } else if (value instanceof Date) {
       return DateTime.fromJSDate(value).toFormat('dd MMM yyyy');
+    } else if (value === null || value === undefined) {
+      return '';
     } else {
       return 'Invalid Date';
     }

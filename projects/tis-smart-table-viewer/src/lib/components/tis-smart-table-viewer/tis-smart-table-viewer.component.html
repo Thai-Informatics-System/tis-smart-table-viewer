@@ -26,7 +26,7 @@
             } @else {
 
                 @if ((dataSource?.totalDataLength$ | async) || (dataSource?.loading$ | async) || search ||
-                filterHasNonEmptyValue || showFilterButtonSection) {
+                filterHasNonEmptyValue || showFilterButtonSection || displayAfterFilterRemoved) {
                     <div class="tis-table-container">
                         @if(!hideTableHeader){
                             <div class="tis-table-container-header">
@@ -109,7 +109,7 @@
                             <div class="tis-table-wrapper" [appScrolling]="true">
 
                                 <!--Table Here-->
-                                <table mat-table matSort [dataSource]="dataSource" class="tis-table" cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListLockAxis]="'y'" multiTemplateDataRows>
+                                <table mat-table matSort [dataSource]="dataSource" class="tis-table" [class.tis-table-bordered]="disableBorderedView == false" cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListLockAxis]="'y'" multiTemplateDataRows>
 
                                     @if (enableRowsSelection) {
                                         <ng-container matColumnDef="Select">

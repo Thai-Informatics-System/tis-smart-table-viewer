@@ -159,7 +159,7 @@ export class TisColumnsBtnComponent {
                 };
                 this.changeDisplayColumns();
               }
-            });
+            }, err => this.helper.showHttpErrorMsg(err));
           }
         });
       }

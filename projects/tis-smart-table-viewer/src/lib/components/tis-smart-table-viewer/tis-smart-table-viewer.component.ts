@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, Subject, takeUntil, tap, Observable, map, shareReplay, distinctUntilChanged, debounceTime } from 'rxjs';
 import type { SmartTableWrapperRowsConfig } from '../../interfaces';
 import { AnyKeyValueObject, SelectedFilterDisplayValuesType, SelectedFilterDisplayValueType, SelectedFiltersGroupedValuesType, SmartTableWrapperColumnsConfig } from '../../interfaces';
-import { SelectionModel } from '@angular/cdk/collections';
+import { CollectionViewer, SelectionModel } from '@angular/cdk/collections';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ApiDataSource } from '../../datasources/api.datasource';
 import { ApiService } from '../../services/api.service';
@@ -40,6 +40,7 @@ export class TisSmartTableViewerComponent {
   @Input() hideTableHeader = false;
   @Input() hidePaginator = false;
   @Input() keepFilterInUrl = true;
+  @Input() disableBorderedView = false;
   @Input() displayColumnsSelectionButton = true;
   @Input() loadDataApiBaseUrl!: string;
   @Input() startStickyColumnCount!: number;
@@ -103,6 +104,7 @@ export class TisSmartTableViewerComponent {
   filterApplied = false;
   resetFlag = false;
   initialLoading = true;
+  displayAfterFilterRemoved = false;
 
   filterFromQueryParams: any = {};
   sortFromQueryParams: any = {};
@@ -165,6 +167,7 @@ export class TisSmartTableViewerComponent {
   selection = new SelectionModel<any>(true, []);
   selectedIds: Set<number | string> = new Set();
   isAllRowsSelected = false;
+  @Output() allRowsSelectedChange = new EventEmitter<boolean>(false);
 
   @Input() enableDragNDrop = false;
   @Output() listDataSequenceChange = new EventEmitter<any>();
@@ -426,6 +429,8 @@ export class TisSmartTableViewerComponent {
     this.loadingSubscription?.unsubscribe();
     this.dataLengthSubscription?.unsubscribe();
     this.filterFormGroupSubscription?.unsubscribe();
+
+    // this.dataSource.disconnect({} as CollectionViewer); // stops API calls
   }
 
   setDefaultColumns() {
@@ -550,6 +555,8 @@ export class TisSmartTableViewerComponent {
       }
     })
 
+    this.displayAfterFilterRemoved = true;
+
     // this.filterFromQueryParams
     this.getFinalSelectedFilterValuesToDisplay();
 
@@ -576,6 +583,8 @@ export class TisSmartTableViewerComponent {
       this.filterFormGroup.get(f.formControlName)?.reset();
     }
     this.selectedFilterValues = this.selectedFilterValues.filter(sfv => !(sfv.formControlName == f.formControlName && sfv.valueKey == f.valueKey));
+
+    this.displayAfterFilterRemoved = true;
     
     setTimeout(() => {
       this.filterRecords();
@@ -731,6 +740,7 @@ export class TisSmartTableViewerComponent {
 
   checkAllRowsSelected() {
     this.isAllRowsSelected = this.selection.selected.length === this.dataSource.apiSubject.value.length;
+    this.allRowsSelectedChange.emit(this.isAllRowsSelected);
   }
 
 

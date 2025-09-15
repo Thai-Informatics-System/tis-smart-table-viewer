@@ -58,6 +58,31 @@
   max-height: 500px; /* Or a large enough value to fit the content */
 }
 
+.tis-table-bordered {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.tis-table-bordered th,
+.tis-table-bordered td {
+    border-left: 1px solid #e0e0e0;
+}
+
+.tis-table-bordered th:first-child,
+.tis-table-bordered td:first-child {
+    border-left: 0px solid #e0e0e0;
+}
+
+.tis-table-bordered .bg-unset {
+    background-color: unset !important;
+}
+
+/* Ensure sticky border elements match table border */
+/* .mat-mdc-table-sticky-border-elem-right,
+.mat-mdc-table-sticky-border-elem-left {
+    border-color: #e0e0e0 !important;
+} */
+
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {
     .search-mat-form-field {

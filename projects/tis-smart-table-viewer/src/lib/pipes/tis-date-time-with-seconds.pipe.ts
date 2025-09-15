@@ -13,6 +13,8 @@ export class TisDateTimeWithSecondsPipe implements PipeTransform {
       return DateTime.fromMillis(+value).toFormat('dd MMM yyyy hh:mm:ss a');
     } else if (typeof value == 'number') {
       return DateTime.fromMillis(value).toFormat('dd MMM yyyy hh:mm:ss a');
+    } else if (value === null || value === undefined) {
+      return '';
     } else {
       return 'Invalid Date';
     }
