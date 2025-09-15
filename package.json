@@ -1,6 +1,6 @@
 {
   "name": "tis-ng-smart-table-viewer",
-  "version": "2.0.6",
+  "version": "2.2.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
