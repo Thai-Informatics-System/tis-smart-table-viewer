@@ -71,7 +71,6 @@ const uiImports = [
     TisSmartTableViewerComponent,
     TisColumnsBtnComponent,
     CreateColumnsTemplateComponent,
-    TisSmartTableViewerComponent,
     TisSmartTableErrorDialogComponent,
     TisSmartTableConfirmationDialogComponent
   ],

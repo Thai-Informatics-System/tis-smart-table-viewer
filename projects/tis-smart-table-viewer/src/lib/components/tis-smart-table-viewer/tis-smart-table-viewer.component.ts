@@ -1,5 +1,5 @@
 import { CdkColumnDef } from '@angular/cdk/table';
-import { Component, EventEmitter, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges, ViewChild, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, Subject, takeUntil, tap, Observable, map, shareReplay, distinctUntilChanged, debounceTime } from 'rxjs';
@@ -9,13 +9,18 @@ import { CollectionViewer, SelectionModel } from '@angular/cdk/collections';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ApiDataSource } from '../../datasources/api.datasource';
 import { ApiService } from '../../services/api.service';
-import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { DateTime } from "luxon";
 import * as storageHelper from '../../helpers/storage-helper';
+import { TimeoutManager } from '../../helpers/timeout-manager.helper';
+import { QueryParamsHelper } from '../../helpers/query-params.helper';
+import { FilterDisplayHelper } from '../../helpers/filter-display.helper';
+import { ValidationHelper } from '../../helpers/validation.helper';
+import { CollectionHelper } from '../../helpers/collection.helper';
+import { UrlHelper } from '../../helpers/url.helper';
 import { Location } from '@angular/common';
 import type { DataNotFoundConfig } from '../../interfaces/data-not-found-config.type';
 import type { ColumnCustomizationUrlConfig } from '../../interfaces/url-config.type';
@@ -27,7 +32,7 @@ import type { ColumnCustomizationUrlConfig } from '../../interfaces/url-config.t
   styleUrl: './tis-smart-table-viewer.component.css',
   providers: [CdkColumnDef],
 })
-export class TisSmartTableViewerComponent {
+export class TisSmartTableViewerComponent implements OnDestroy {
   homeUrl = '';
 
   @Input({ required: true }) columnCustomizationUrlConfig!: ColumnCustomizationUrlConfig;
@@ -113,6 +118,25 @@ export class TisSmartTableViewerComponent {
   searchCtrl = new FormControl();
   private _onDestroy = new Subject<void>();
 
+  // Additional subscriptions that need cleanup
+  private _selectionSubscription!: Subscription;
+  private _handsetSubscription!: Subscription;
+  private _queryParamsSubscription!: Subscription;
+
+  // Memory-efficient caching
+  private _columnMappingCache: Map<string, SmartTableWrapperColumnsConfig> = new Map();
+  private _displayedColumnsCache: string[] = [];
+  private _lastColumnsCodeMappingHash: string = '';
+
+  // Race condition prevention
+  private _currentRequestSubject = new Subject<void>();
+  
+  // Timeout management for proper cleanup - prevent memory leaks
+  private timeoutManager = new TimeoutManager();
+  
+  // Computed row backgrounds for optimal performance
+  private computedRowBackgrounds = new Map<string, string | null>();
+  
   dataSource!: ApiDataSource;
 
   private _sort!: MatSort;
@@ -176,6 +200,9 @@ export class TisSmartTableViewerComponent {
   @Input() isExpandedRow: boolean = false;
   @Input() expandedTemplate: any;
   isAllExpanded: boolean = false;
+  
+  // Expansion state management - avoid direct mutation
+  private expandedRowIds: Set<string | number> = new Set();
 
   isHandset$!: Observable<boolean>;
   isMobile: boolean = false;
@@ -189,26 +216,30 @@ export class TisSmartTableViewerComponent {
     private location: Location,
     private breakpointObserver: BreakpointObserver
   ) {
-    this.selection.changed.subscribe(change => {
-      change.added.forEach(item => this.selectedIds.add(item['id']));
-      change.removed.forEach(item => this.selectedIds.delete(item['id']));
+    // Store subscription reference for proper cleanup
+    this._selectionSubscription = this.selection.changed.subscribe(change => {
+      change.added.forEach(item => {
+        if (item && item[this.selectedRowKey] !== undefined) {
+          this.selectedIds.add(item[this.selectedRowKey]);
+        }
+      });
+      change.removed.forEach(item => {
+        if (item && item[this.selectedRowKey] !== undefined) {
+          this.selectedIds.delete(item[this.selectedRowKey]);
+        }
+      });
     });
-
   }
 
   ngOnInit(): void {
 
     this.isHandset$ = this.breakpointObserver.observe([Breakpoints.Handset])
     .pipe(
-      map(result => {
-        console.log("== result ==", result);
-        return result.matches;
-      }),
+      map(result => result.matches),
       shareReplay()
     );
 
-    this.isHandset$.subscribe(r => {
-      console.log('IS HANDSET:', r);
+    this._handsetSubscription = this.isHandset$.subscribe(r => {
       this.isMobile = r;
     });
 
@@ -216,83 +247,33 @@ export class TisSmartTableViewerComponent {
 
     this.getHomeUrl();
 
-    this.route.queryParams.subscribe(qp => {
+    this._queryParamsSubscription = this.route.queryParams.subscribe(qp => {
+      // Initialize objects
       this.filterFromQueryParams = {};
       this.sortFromQueryParams = {};
-
+      
       if (this.keepFilterInUrl) {
-        for (const key in qp) {
-          if (qp.hasOwnProperty(key) && qp[key] && qp[key] != '' && qp[key] != 'null' && qp[key] != 'undefined') {
-
-            let fixedKeyMatched = false;
-
-            if (key.toLowerCase() === 'pageIndex'.toLowerCase()) {
-              this.pageIndex = Number(qp[key]);
-              fixedKeyMatched = true;
-            }
-
-            if (key.toLowerCase() === 'pageSize'.toLowerCase()) {
-              this.pageSize = Number(qp[key]);
-              fixedKeyMatched = true;
-            }
-
-            if (key.toLowerCase() === 'sortBy'.toLowerCase()) {
-              this.sortFromQueryParams.sortBy = qp[key];
-              fixedKeyMatched = true;
-            }
-
-            if (key.toLowerCase() === 'sortOrder'.toLowerCase()) {
-              this.sortFromQueryParams.sortOrder = qp[key];
-              fixedKeyMatched = true;
-            }
-
-            if (key.toLowerCase() === 'search'.toLowerCase()) {
-              this.search = qp[key];
-              this.searchCtrl.patchValue(this.search);
-              fixedKeyMatched = true;
-            }
-
-
-            if (key.toLowerCase().includes('date') && qp[key].length == 13) {  // To Check if it is a date
-              // this.filterFromQueryParams[key] = moment(Number(qp[key]));
-              this.filterFromQueryParams[key] = DateTime.fromMillis(Number(qp[key]));
-              fixedKeyMatched = true;
-            }
-
-            if (!fixedKeyMatched) {
-              if ((qp[key]).includes(',')) {
-                this.filterFromQueryParams[key] = (qp[key]).split(',');
-              } else {
-                this.filterFromQueryParams[key] = qp[key];
-              }
-            }
-
-            // Transform Data, before patching in filter Form
-            let mapping = this.columnsCodeMapping.find(ccm => ccm.filterFormKey == key);
-            if (mapping?.transformQueryParamFn) {
-              this.filterFromQueryParams[key] = mapping.transformQueryParamFn(this.filterFromQueryParams[key]);
-            }
-
-          }
-        }
+        const { filterParams, sortParams, pageIndex, pageSize, search } = 
+          QueryParamsHelper.processForFilters(qp, this.columnsCodeMapping);
+        
+        this.filterFromQueryParams = filterParams;
+        this.sortFromQueryParams = sortParams;
+        this.pageIndex = pageIndex;
+        this.pageSize = pageSize;
+        this.search = search;
+        this.searchCtrl.patchValue(this.search);
+        
         this.filterFormGroup.patchValue(this.filterFromQueryParams);
 
-        if (this.sortFromQueryParams && this.sortFromQueryParams.sortBy && this.sortFromQueryParams.sortOrder) {
+        if (ValidationHelper.hasProperty(this.sortFromQueryParams, 'sortBy') && 
+            ValidationHelper.hasProperty(this.sortFromQueryParams, 'sortOrder')) {
           this.sortObj = this.sortFromQueryParams;
-          console.log('[table-list-view-wrapper]: Emitting Sort Obj from QP to parent component:', this.sortFromQueryParams);
           this.sortObjChange.emit(this.sortObj);
         }
       }
 
-
-
-      let filterHasNonEmptyValue = Object.values(this.filterFromQueryParams).some(value => value !== null && value !== undefined && value !== '');
-      if (filterHasNonEmptyValue) {
-        this.filterApplied = true;
-      }
-
+      this.filterApplied = ValidationHelper.hasNonEmptyValue(this.filterFromQueryParams);
       this.getList();
-
     });
 
     this.searchCtrl.valueChanges
@@ -309,13 +290,10 @@ export class TisSmartTableViewerComponent {
     // console.log(`[table-list-view-wrapper]: ngOnChanges:`, changes);
 
     if (changes['defaultDisplayedColumns']) {
-      console.log(`[table-list-view-wrapper]: changes['defaultDisplayedColumns']:`, changes['defaultDisplayedColumns']);
       this.handleDisplayedColumns();
     }
 
     if (changes['columnsCodeMapping']) {
-      console.log(`[table-list-view-wrapper]: changes['columnsCodeMapping']:`, changes['columnsCodeMapping']);
-
       this.columnsCodeMapping = changes['columnsCodeMapping'].currentValue;
       this.handleDisplayedColumns();
 
@@ -342,9 +320,6 @@ export class TisSmartTableViewerComponent {
 
     if (changes['loadDataApiBaseUrl']) {
       if (changes['loadDataApiBaseUrl'].currentValue) {
-        console.log(`[table-list-view-wrapper]: Datasource changes['loadDataApiBaseUrl'].currentValue:`, changes['loadDataApiBaseUrl'].currentValue);
-
-
         if (this.loadingSubscription) {
           this.loadingSubscription.unsubscribe();
         }
@@ -354,15 +329,18 @@ export class TisSmartTableViewerComponent {
         }
 
         this.dataSource = new ApiDataSource(this.apiService);
-        console.log('[table-list-view-wrapper]: Datasource Initialized:', this.dataSource);
 
         this.loadingSubscription = this.dataSource.loading$.subscribe(loading => {
-          console.log('[table-list-view-wrapper]: dataSource loading:', loading);
           if (!loading) {
             if(this._paginator){
               this._paginator.pageIndex = this.pageIndex;
               this._paginator.pageSize = this.pageSize;
             }
+            // Clear background cache when new data arrives
+            this.clearRowBackgroundCache();
+            // Pre-compute all row backgrounds for optimal performance
+            this.computeAllRowBackgrounds();
+            
             this.checkAllRowsSelected();
             this.onDataLoaded.emit(true);
             this.onSetExtraData.emit(this.dataSource.extraDataSubject.value);
@@ -375,7 +353,6 @@ export class TisSmartTableViewerComponent {
         });
 
         this.dataLengthSubscription = this.dataSource.totalDataLength$.subscribe((total: any) => {
-          console.log('[table-list-view-wrapper]: dataSource total:', total);
           if (total !== null) {
             this.initialLoading = false;
             this.onSetTotal.emit(total);
@@ -393,7 +370,7 @@ export class TisSmartTableViewerComponent {
 
       this.filterFormGroupSubscription = this.filterFormGroup.valueChanges
         .pipe(takeUntil(this._onDestroy), distinctUntilChanged()).subscribe(val => {
-          this.filterHasNonEmptyValue = Object.values(val).some(value => value !== null && value !== undefined && value !== '');
+          this.filterHasNonEmptyValue = ValidationHelper.hasNonEmptyValue(val);
         })
     }
 
@@ -424,13 +401,50 @@ export class TisSmartTableViewerComponent {
 
 
   ngOnDestroy(): void {
+    // Complete the destroy subject first to trigger takeUntil operators
+    this._onDestroy.next();
+    this._onDestroy.complete();
+
+    // Clean up all subscriptions
     this._sortSubscription?.unsubscribe();
     this._paginatorSubscription?.unsubscribe();
     this.loadingSubscription?.unsubscribe();
     this.dataLengthSubscription?.unsubscribe();
     this.filterFormGroupSubscription?.unsubscribe();
+    
+    // Clean up additional subscriptions
+    this._selectionSubscription?.unsubscribe();
+    this._handsetSubscription?.unsubscribe();
+    this._queryParamsSubscription?.unsubscribe();
 
-    // this.dataSource.disconnect({} as CollectionViewer); // stops API calls
+    // Clean up selection model and data structures using CollectionHelper
+    this.selection.clear();
+    CollectionHelper.clearSet(this.selectedIds);
+    CollectionHelper.clearSet(this.expandedRowIds);
+    
+    // Clear arrays to free memory using CollectionHelper
+    CollectionHelper.clearArray(this.selectedFilterValues);
+    CollectionHelper.clearArray(this.finalSelectedFilterValuesToDisplay);
+    CollectionHelper.clearArray(this.selectedFilterGroupedValues);
+    CollectionHelper.clearArray(this.displayedColumns);
+    
+    // Clear caches to free memory
+    CollectionHelper.clearMap(this._columnMappingCache);
+    CollectionHelper.clearArray(this._displayedColumnsCache);
+    this._lastColumnsCodeMappingHash = '';
+    CollectionHelper.clearMap(this.computedRowBackgrounds);
+    
+    // Complete race condition prevention subject
+    this._currentRequestSubject.next();
+    this._currentRequestSubject.complete();
+    
+    // Clear all pending timeouts to prevent memory leaks
+    this.timeoutManager.clearAll();
+    
+    // Disconnect data source to stop API calls and complete observables
+    if (this.dataSource) {
+      this.dataSource.disconnect({} as CollectionViewer);
+    }
   }
 
   setDefaultColumns() {
@@ -443,23 +457,104 @@ export class TisSmartTableViewerComponent {
 
 
   handleDisplayedColumns() {
-    if (this.defaultDisplayedColumns && this.defaultDisplayedColumns.length) {
-
-      const columnsSet = new Set<string>(this.columnsCodeMapping.map(ccm => ccm.name));
-      this.displayedColumns = this.defaultDisplayedColumns.filter(c => columnsSet.has(c));
-
+    // Create a hash of current columns to check if cache is valid
+    const columnsHash = JSON.stringify(this.columnsCodeMapping.map(c => c.name));
+    
+    // Use cache if columns haven't changed
+    if (this._lastColumnsCodeMappingHash === columnsHash && this._displayedColumnsCache.length > 0) {
+      this.displayedColumns = [...this._displayedColumnsCache];
     } else {
-      this.displayedColumns = this.columnsCodeMapping.map(c => c?.columnDef || c.name);
+      // Update cache
+      this.updateColumnMappingCache();
+      this._lastColumnsCodeMappingHash = columnsHash;
+      
+      if (this.defaultDisplayedColumns && this.defaultDisplayedColumns.length) {
+        this.displayedColumns = this.defaultDisplayedColumns.filter(c => this._columnMappingCache.has(c));
+      } else {
+        this.displayedColumns = this.columnsCodeMapping.map(c => c?.columnDef || c.name);
+      }
+      
+      // Cache the result before adding selection/drag columns
+      this._displayedColumnsCache = [...this.displayedColumns];
     }
 
+    // Add selection and drag columns (these are dynamic and shouldn't be cached)
+    const finalColumns = [...this.displayedColumns];
+    
     if (this.enableRowsSelection) {
-      this.displayedColumns = ['Select', ...this.displayedColumns];
+      finalColumns.unshift('Select');
     }
 
     if (this.enableDragNDrop) {
-      this.displayedColumns = ['drag', ...this.displayedColumns];
+      finalColumns.unshift('drag');
     }
+    
+    this.displayedColumns = finalColumns;
     this.displayedColumnsChange.emit(this.displayedColumns);
+  }
+
+  private updateColumnMappingCache(): void {
+    this._columnMappingCache.clear();
+    this.columnsCodeMapping.forEach(column => {
+      this._columnMappingCache.set(column.name, column);
+    });
+  }
+
+  // TrackBy functions for optimal rendering performance
+  trackByBreadcrumb(index: number, breadcrumb: { url: string, name: string }): string {
+    return breadcrumb.url + breadcrumb.name || index.toString();
+  }
+
+  trackByFilterValue(index: number, filterValue: SelectedFilterDisplayValueType): string {
+    return `${filterValue.formControlName}_${filterValue.valueKey}_${filterValue.value}`;
+  }
+
+  trackByAutoColumn(index: number, column: SmartTableWrapperColumnsConfig): string {
+    return column.name + (column.serverKeyCode || '');
+  }
+
+  trackByTemplateColumn(index: number, column: SmartTableWrapperColumnsConfig): string {
+    return column.name + (column.serverKeyCode || '');
+  }
+
+  trackByTableRow(index: number, row: any): any {
+    return row.id || row[this.selectedRowKey] || index;
+  }
+
+  // Helper method to get consistent row identifier for expansion tracking
+  private getRowIdentifier(row: any): string | number {
+    return CollectionHelper.getRowIdentifier(row, 'id', this.selectedRowKey);
+  }
+
+  // Helper method to check if a row is expanded (non-mutating)
+  public isRowExpanded(row: any): boolean {
+    if (!this.isExpansion) return false;
+    const rowId = this.getRowIdentifier(row);
+    return this.expandedRowIds.has(rowId);
+  }
+
+  // Clear background cache when data changes to ensure fresh calculations
+  private clearRowBackgroundCache(): void {
+    this.computedRowBackgrounds.clear();
+  }
+
+  // Compute all row backgrounds when data changes (runs once per data load)
+  private computeAllRowBackgrounds(): void {
+    if (!this.dataSource?.apiSubject.value || !this.rowsConfig.backgroundApplyFunction) {
+      return;
+    }
+    
+    this.computedRowBackgrounds.clear();
+    this.dataSource.apiSubject.value.forEach((row:any) => {
+      const rowId = row?.id || row?.[this.selectedRowKey] || JSON.stringify(row);
+      try {
+        const background = this.rowsConfig.backgroundApplyFunction!(row);
+        this.computedRowBackgrounds.set(rowId, background);
+      } catch (error) {
+        console.warn('Error computing row background:', error);
+        this.computedRowBackgrounds.set(rowId, null);
+      }
+    }); 
   }
 
 
@@ -473,107 +568,48 @@ export class TisSmartTableViewerComponent {
 
 
   private getHomeUrl() {
-    let pathname = window.location.pathname;
-    // console.log("=== app-table-list-view-wrapper :: pathname ===", pathname);
-    this.homeUrl = `/${pathname.split('/')[1]}`;
+    this.homeUrl = UrlHelper.getHomeUrl();
   }
 
 
   getNestedValue(obj: any, path: string): any {
-    if (!path) return null;
-    // If there is no '.', just return the direct property
-    if (!path.includes('.')) {
-      return obj && obj[path] ? obj[path] : null;
-    }
-    // Otherwise, traverse the nested properties
-    return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    return CollectionHelper.getNestedProperty(obj, path);
   }
 
 
 
   private groupByFormControlAttributes(data: SelectedFilterDisplayValueType[]): SelectedFiltersGroupedValuesType[] {
-    const groups: Record<string, SelectedFiltersGroupedValuesType> = {};
-
-    data.forEach(item => {
-
-      if (item.formControlType == 'input') {
-        // Do Nothing...
-      }
-      if (item.formControlType == 'checkbox') {
-        // Do Nothing...
-      }
-      if (item.formControlType == 'date') {
-        item.valueKey = DateTime.fromJSDate(item.value).toFormat('dd-MM-yyyy');
-      }
-      if (item.formControlType == 'date-time') {
-        item.valueKey = DateTime.fromJSDate(item.value).toFormat('dd-MM-yyyy HH:mm');
-      }
-
-      const key = `${item.formControlName}-${item.formControlType}`;
-      if (!groups[key]) {
-        groups[key] = {
-          formControlName: item.formControlName,
-          formControlType: item.formControlType,
-          arrValues: []
-        };
-      }
-      const isSingleValue = item.isSingleValue ?? ['input', 'radio', 'date', 'date-time', 'toggle'].includes(item.formControlType);
-      // Check if only the last value should be kept due to isSingleValue or duplicated value/valueKey
-      if (isSingleValue) {
-        groups[key].arrValues = [item]; // Replace with the current item
-      } else {
-        // Check for duplicate value and valueKey in the current array
-        const existingIndex = groups[key].arrValues.findIndex(x => x.value === item.value && x.valueKey === item.valueKey);
-        if (existingIndex !== -1) {
-          groups[key].arrValues[existingIndex] = item; // Replace the duplicate
-        } else {
-          groups[key].arrValues.push(item); // Add new item
-        }
-      }
-    });
-
-    return Object.values(groups);
+    return FilterDisplayHelper.groupByFormControlAttributes(data);
   }
 
   updateSelectedFilterValues(values: SelectedFilterDisplayValueType | SelectedFilterDisplayValuesType) {
     let currentFormControlName: string;
     if (Array.isArray(values)) {
-      this.selectedFilterGroupedValues = this.groupByFormControlAttributes(values);
       currentFormControlName = values[0]?.formControlName;
     } else {
       currentFormControlName = values?.formControlName;
-      this.selectedFilterGroupedValues = this.groupByFormControlAttributes([values]);
     }
 
-    this.selectedFilterValues = this.selectedFilterValues.filter(sfv => sfv.formControlName != currentFormControlName);
-
-    this.selectedFilterGroupedValues.forEach(gv => {
-      if (gv.formControlName = currentFormControlName) {
-        gv.arrValues.forEach(v => {
-          this.selectedFilterValues.push(v);
-        })
-      }
-    })
-
+    const result = FilterDisplayHelper.updateSelectedFilterValues(
+      this.selectedFilterValues, 
+      values, 
+      currentFormControlName
+    );
+    
+    this.selectedFilterValues = result.selectedFilterValues;
+    this.selectedFilterGroupedValues = result.selectedFilterGroupedValues;
     this.displayAfterFilterRemoved = true;
-
-    // this.filterFromQueryParams
     this.getFinalSelectedFilterValuesToDisplay();
-
-
   }
 
   getFinalSelectedFilterValuesToDisplay() {
-    this.finalSelectedFilterValuesToDisplay = [];
-    this.selectedFilterValues.forEach(sf => {
-      if (Object.keys(this.filterFromQueryParams).includes(sf.formControlName)) {
-        this.finalSelectedFilterValuesToDisplay.push(sf);
-      }
-    });
+    this.finalSelectedFilterValuesToDisplay = FilterDisplayHelper.getValuesForDisplay(
+      this.selectedFilterValues, 
+      this.filterFromQueryParams
+    );
   }
 
   removeParticularFilter(f: SelectedFilterDisplayValueType) {
-
     let val = this.filterFormGroup.get(f.formControlName)?.value;
     
     if (Array.isArray(val)) {
@@ -582,11 +618,11 @@ export class TisSmartTableViewerComponent {
     } else {
       this.filterFormGroup.get(f.formControlName)?.reset();
     }
-    this.selectedFilterValues = this.selectedFilterValues.filter(sfv => !(sfv.formControlName == f.formControlName && sfv.valueKey == f.valueKey));
-
+    
+    this.selectedFilterValues = FilterDisplayHelper.removeFilterValue(this.selectedFilterValues, f);
     this.displayAfterFilterRemoved = true;
     
-    setTimeout(() => {
+    this.timeoutManager.createTimeout(() => {
       this.filterRecords();
     }, 500);
   }
@@ -595,7 +631,9 @@ export class TisSmartTableViewerComponent {
   filterRecords() {
     this.filterApplied = true;
     this.resetFlag = true;
-    setTimeout(() => {
+    // Clear computed backgrounds before loading filtered data
+    this.clearRowBackgroundCache();
+    this.timeoutManager.createTimeout(() => {
       this.getList(true);
       this.isShowFilter = false;
     }, 500);
@@ -603,7 +641,9 @@ export class TisSmartTableViewerComponent {
 
   public resetFilters() {
     this.filterApplied = false;
-    setTimeout(() => {
+    // Clear computed backgrounds before reset
+    this.clearRowBackgroundCache();
+    this.timeoutManager.createTimeout(() => {
       this.resetFlag = true;
       this.filterFromQueryParams = {};
       this.sortFromQueryParams = {};
@@ -614,48 +654,24 @@ export class TisSmartTableViewerComponent {
   }
 
   public getList(forceFromObject = false) {
+    // Cancel any previous request to prevent race conditions
+    this._currentRequestSubject.next();
+    
     this.isAllExpanded = false;
+    // Clear expansion state when loading new data to avoid stale expansion state
+    CollectionHelper.clearSet(this.expandedRowIds);
+    
     const filterFormData = this.filterFormGroup?.value;
+    this.filterHasNonEmptyValue = ValidationHelper.hasFormData(filterFormData);
 
-    let qs: any = new URLSearchParams();
-    let filter: any = { ...filterFormData };
-
-    if (filterFormData) {
-      this.filterHasNonEmptyValue = Object.values(filterFormData).some(value => value !== null && value !== undefined && value !== '');
-    } else {
-      this.filterHasNonEmptyValue = false;
-    }
-
-    for (const key in filter) {
-      if (typeof filter[key] === 'object' && (filter[key] instanceof Date || DateTime.isDateTime(filter[key]))) {
-        if (filter[key] instanceof Date) {
-          filter[key] = DateTime.fromJSDate(filter[key]).toMillis();
-        }
-        else if (DateTime.isDateTime(filter[key])) {
-          filter[key] = filter[key].toMillis();
-        }
-      }
-    }
-
-    // Append All Filters from filter form
-    Object.keys(filter).forEach(key => {
-      if (filter[key] != null && filter[key] != '' && filter[key] != 'null' && filter[key] != 'undefined') {
-        if (filter[key] === '*') {
-          filter[key] = '';
-        }
-        qs.append(key, filter[key]);
-      }
-    });
-
-
-    // Append sorting conditions...
-    if (this.sortFromQueryParams) {
-      Object.keys(this.sortFromQueryParams).forEach(key => {
-        if (this.sortFromQueryParams[key] != null && this.sortFromQueryParams[key] != '' && this.sortFromQueryParams[key] != 'null' && this.sortFromQueryParams[key] != 'undefined') {
-          qs.append(key, this.sortFromQueryParams[key]);
-        }
-      });
-    }
+    // Build query string using helper
+    const qs = QueryParamsHelper.buildQueryString(
+      filterFormData,
+      this.sortFromQueryParams,
+      this.resetFlag ? 0 : this.pageIndex,
+      this.pageSize,
+      this.search
+    );
 
     if (this.resetFlag) {
       this.pageIndex = 0;
@@ -666,26 +682,25 @@ export class TisSmartTableViewerComponent {
       this._paginator.pageSize = this.pageSize;
     }
 
-    qs.append("pageIndex", this.pageIndex);
-    qs.append("pageSize", this.pageSize);
-
-    if (this.search != '') {
-      qs.append('search', this.search);
+    // Update URL if needed
+    const baseUrl = UrlHelper.getBaseUrl(this.router);
+    const genUrl = UrlHelper.buildUrl(baseUrl, qs);
+    
+    if (this.keepFilterInUrl && UrlHelper.hasUrlChanged(genUrl)) {
+      UrlHelper.updateUrl(this.location, baseUrl, qs.toString());
+      this.filterFromQueryParams = QueryParamsHelper.parseQueryParams(window.location.href);
     }
 
-
-    qs = qs.toString();
-    let genUrl = this.router.url.split('?')[0] + '?' + qs;
-    let currentUrl = window.location.pathname + window.location.search;
-
-    if (currentUrl != genUrl) {
-      if (this.keepFilterInUrl) {
-        this.location.go(genUrl);
-        this.filterFromQueryParams = this.getQueryParams(window.location.href);
-      }
-    } else {}
-
-    this.dataSource.load(this.loadDataApiBaseUrl, this.pageIndex, this.pageSize, this.search, filter, this.sortObj);
+    // Load data with race condition protection
+    this.dataSource.loadWithCancellation(
+      this.loadDataApiBaseUrl, 
+      this.pageIndex, 
+      this.pageSize, 
+      this.search, 
+      filterFormData, // Pass original form data - datasource will handle conversions
+      this.sortObj,
+      this._currentRequestSubject
+    );
     this.getFinalSelectedFilterValuesToDisplay();
 
     this.resetFlag = false;
@@ -695,12 +710,16 @@ export class TisSmartTableViewerComponent {
   onPaginationChanges() {
     if (this.pageIndex != this._paginator.pageIndex) {
       this.pageIndex = this._paginator.pageIndex;
+      // Clear computed backgrounds before loading new page data
+      this.clearRowBackgroundCache();
       this.getList();
       this.pageIndexChange.emit(this.pageIndex);
     }
 
     if (this.pageSize != this._paginator.pageSize) {
       this.pageSize = this._paginator.pageSize;
+      // Clear computed backgrounds before loading new page size data
+      this.clearRowBackgroundCache();
       this.getList();
       this.pageSizeChange.emit(this.pageSize);
       storageHelper.setToLocalStorageWithExpiry('user_pagination_page_size', this.pageSize, 1000 * 60 * 60 * 24 * 15);
@@ -722,9 +741,7 @@ export class TisSmartTableViewerComponent {
   }
 
   goToUrl(url: string) {
-    if (url) {
-      this.router.navigateByUrl(url);
-    }
+    UrlHelper.safeNavigate(this.router, url);
   }
 
   toggleSelection(status: MatCheckboxChange, row: any): void {
@@ -762,30 +779,12 @@ export class TisSmartTableViewerComponent {
   }
 
   isChecked(row: any): boolean {
-    return this.selectedIds.has(row['id']);
+    return ValidationHelper.hasRowKey(row, this.selectedRowKey) && 
+           this.selectedIds.has(row[this.selectedRowKey]);
   }
 
   getQueryParams(url: string): Record<string, string | string[]> {
-    const urlObj = new URL(url);
-    const params = new URLSearchParams(urlObj.search);
-    const paramsObj: Record<string, string | string[]> = {};
-
-    params.forEach((value, key) => {
-      // Check if the parameter already exists (for handling multiple values)
-      if (paramsObj.hasOwnProperty(key)) {
-        // If it's not already an array, convert it to an array
-        if (!Array.isArray(paramsObj[key])) {
-          paramsObj[key] = [paramsObj[key] as string];  // Cast as string because we know it's not an array here
-        }
-        // Push the new value to the existing array
-        (paramsObj[key] as string[]).push(value); // Cast as string[] to use array methods
-      } else {
-        // Assign the value to the key in the object
-        paramsObj[key] = value;
-      }
-    });
-
-    return paramsObj;
+    return QueryParamsHelper.parseQueryParams(url);
   }
 
 
@@ -823,10 +822,28 @@ export class TisSmartTableViewerComponent {
   }
 
 
+  // Optimized getRowBackground - simple O(1) lookup
   getRowBackground(row: any): string | null {
-    return this.rowsConfig.backgroundApplyFunction
-      ? this.rowsConfig.backgroundApplyFunction(row)
-      : null;
+    // Early return if no background function is provided
+    if (!this.rowsConfig.backgroundApplyFunction) {
+      return null;
+    }
+
+    const rowId = row?.id || row?.[this.selectedRowKey] || JSON.stringify(row);
+    
+    // If not computed yet, compute on-demand (fallback)
+    if (!this.computedRowBackgrounds.has(rowId)) {
+      try {
+        const background = this.rowsConfig.backgroundApplyFunction(row);
+        this.computedRowBackgrounds.set(rowId, background);
+        return background;
+      } catch (error) {
+        console.warn('Error computing row background:', error);
+        return null;
+      }
+    }
+    
+    return this.computedRowBackgrounds.get(rowId) || null;
   }
 
 
@@ -854,19 +871,11 @@ export class TisSmartTableViewerComponent {
   }
 
   handleButtonClick(config: any) {
-    if (config?.btnClick) {
-      config.btnClick();
-    } else if (config?.btnUrl) {
-      this.goToUrl(config.btnUrl);
-    }
+    UrlHelper.handleButtonClick(this.router, config);
   }
 
   handleSecondButtonClick(config: any) {
-    if (config?.secondBtnClick) {
-      config.secondBtnClick();
-    } else if (config?.secondBtnUrl) {
-      this.goToUrl(config.secondBtnUrl);
-    }
+    UrlHelper.handleSecondaryButtonClick(this.router, config);
   }
 
   setSelectedRows(){
@@ -889,22 +898,35 @@ export class TisSmartTableViewerComponent {
 
   /** Toggles the expanded state of an element. */
   public toggleExpand(element: any) {
-    if(this.isExpansion){
-      if(!element?.expanded){
-        element.expanded = true;
-      }
-      else{
-        element.expanded = false;
-      }
+    if (!this.isExpansion || !element) {
+      return;
+    }
+    
+    const rowId = this.getRowIdentifier(element);
+    
+    if (this.expandedRowIds.has(rowId)) {
+      this.expandedRowIds.delete(rowId);
+    } else {
+      this.expandedRowIds.add(rowId);
     }
   }
 
   public expandAllRow(){
-    if(this.isExpansion){
-      this.isAllExpanded = !this.isAllExpanded;
+    if (!this.isExpansion || !this.dataSource?.apiSubject?.value) {
+      return;
+    }
+    
+    this.isAllExpanded = !this.isAllExpanded;
+    
+    if (this.isAllExpanded) {
+      // Add all row IDs to expanded set
       this.dataSource.apiSubject.value.forEach(row => {
-        row.expanded = this.isAllExpanded;
+        const rowId = this.getRowIdentifier(row);
+        this.expandedRowIds.add(rowId);
       });
+    } else {
+      // Clear all expanded rows
+      this.expandedRowIds.clear();
     }
   }
 }

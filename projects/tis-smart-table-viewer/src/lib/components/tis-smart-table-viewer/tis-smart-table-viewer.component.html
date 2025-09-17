@@ -3,7 +3,7 @@
         <nav aria-label="tis-breadcrumb">
             <ol class="tis-breadcrumb">
                 <li class="tis-breadcrumb-item"><a href="javascript:;" [routerLink]="homeUrl">{{t?.home}}</a></li>
-                @for(breadcrumb of breadcrumbs; track breadcrumb) {
+                @for(breadcrumb of breadcrumbs; track trackByBreadcrumb($index, breadcrumb)) {
                     <li class="tis-breadcrumb-item" *ngIf="breadcrumb?.url">
                         <a href="javascript:;" (click)="goToUrl(breadcrumb.url)">{{breadcrumb?.name}}</a>
                     </li>
@@ -65,7 +65,7 @@
 
                             @if(finalSelectedFilterValuesToDisplay.length && filterApplied) {
                                 <div class="flex gap-3 mb-3 filter-applied-section md-hide-scrollbar">
-                                    @for(v of finalSelectedFilterValuesToDisplay; track v) {
+                                    @for(v of finalSelectedFilterValuesToDisplay; track trackByFilterValue($index, v)) {
                                         @if (v) {
                                             <span class="tis-filter-badge" style="white-space: nowrap;">
                                                 @if(v.labelKey && v.labelKey != '' && (v.valueKey || v.value)) {
@@ -127,7 +127,7 @@
                                         </ng-container>
                                     }
 
-                                    @for(column of autoRenderColumns; track column.serverKeyCode; let i = $index; let l = $last){
+                                    @for(column of autoRenderColumns; track trackByAutoColumn($index, column); let i = $index; let l = $last){
                                         <!-- [sticky]="i < startStickyColumnCount" [stickyEnd]="i > (autoRenderColumns?.length - endStickyColumnCount)" -->
                                         <ng-container [matColumnDef]="column?.columnDef || column.name" [sticky]="isStickyStart(column?.columnDef || column.name)" [stickyEnd]="isStickyEnd(column?.columnDef || column.name)">
                                             @if(column.type == 'expand') {
@@ -187,7 +187,7 @@
                                     }
 
 
-                                    @for(column of templateRenderColumns; track column.serverKeyCode; let i = $index; let l = $last){
+                                    @for(column of templateRenderColumns; track trackByTemplateColumn($index, column); let i = $index; let l = $last){
                                         <!-- [sticky]="i < startStickyColumnCount" [stickyEnd]="l" -->
                                         <ng-container [matColumnDef]="column?.columnDef || column.name"  [sticky]="isStickyStart(column?.columnDef || column.name)" [stickyEnd]="isStickyEnd(column?.columnDef || column.name)">
                                             @if(column.type == 'expand') {

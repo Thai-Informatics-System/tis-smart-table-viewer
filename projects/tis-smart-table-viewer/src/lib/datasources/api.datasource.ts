@@ -1,5 +1,5 @@
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
-import { BehaviorSubject, Observable, Subscription, of } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, of, Subject, takeUntil } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { ApiService } from '../services/api.service';
 
@@ -29,9 +29,9 @@ export class ApiDataSource implements DataSource<any> {
         this.extraDataSubject.complete();
         this.loadingSubject.complete();
 
-        // if(this.apiSubs) {
-        //     this.apiSubs.unsubscribe();
-        // }
+        if(this.apiSubs) {
+            this.apiSubs.unsubscribe();
+        }
     }
 
     load(url: string, pageIndex: number, pageSize: number, search: string, filter?: object, sortFilter?: object) {
@@ -45,6 +45,37 @@ export class ApiDataSource implements DataSource<any> {
             catchError(() => of([])),
             finalize(() => this.loadingSubject.next(false))
         ).subscribe(r => {
+            console.log(`DataSource: Url: ${url}, Reply:`, r);
+            if (r?.data?.length > 0) {
+                this.totalDataLength.next(r?.total);
+            }
+            else {
+                this.totalDataLength.next(0);
+            }
+            this.apiSubject.next(r?.data);
+            this.extraDataSubject.next(r?.extraData);
+        });
+    }
+
+    loadWithCancellation(url: string, pageIndex: number, pageSize: number, search: string, filter?: object, sortFilter?: object, cancelSubject?: Subject<void>) {
+
+        if(this.apiSubs) {
+            this.apiSubs.unsubscribe();
+        }
+
+        this.loadingSubject.next(true);
+        
+        let apiCall$ = this.apiService.getList(url, (pageIndex + 1), pageSize, search, {filter}, {sortFilter}).pipe(
+            catchError(() => of([])),
+            finalize(() => this.loadingSubject.next(false))
+        );
+
+        // Add cancellation capability if provided
+        if (cancelSubject) {
+            apiCall$ = apiCall$.pipe(takeUntil(cancelSubject));
+        }
+
+        this.apiSubs = apiCall$.subscribe(r => {
             console.log(`DataSource: Url: ${url}, Reply:`, r);
             if (r?.data?.length > 0) {
                 this.totalDataLength.next(r?.total);

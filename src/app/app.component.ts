@@ -41,7 +41,7 @@ const uiImports = [
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, TranslocoModule, TisSmartTableViewerModule, CommonModule, FormsModule, ReactiveFormsModule, RouterLink, ...uiImports],
+  imports: [TranslocoModule, TisSmartTableViewerModule, CommonModule, FormsModule, ReactiveFormsModule, RouterLink, ...uiImports],
   providers: [provideTranslocoScope('common')],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
