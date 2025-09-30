@@ -22,15 +22,17 @@ export class TisColumnsBtnComponent {
   @Input({required: true}) columns!: string[];
   @Input() skipTranslation: boolean = false;
   @Input() customColumns?: object;
+  @Input() selectedTemplate: any = {
+    id: -1,
+    name: 'Default',
+    fromStartColumnNumber: 0,
+    fromEndColumnNumber: 0,
+  };
 
+  @Output() selectedTemplateChange = new EventEmitter();
   @Output() displayedColumnsChange = new EventEmitter();
   @Output() fromStartColumnNumberChange = new EventEmitter();
   @Output() fromEndColumnNumberChange = new EventEmitter();
-
-  selectedTemplate: any = {
-    id: -1,
-    name: 'Default'
-  };
   displayedColumns: any[] = [];
   templates: any[] = [];
   isDeleteTemplate = false;
@@ -93,6 +95,7 @@ export class TisColumnsBtnComponent {
           this.templates = [res, ...this.templates];
         }
         this.selectedTemplate = res;
+        this.selectedTemplateChange.emit(this.selectedTemplate);
         this.changeDisplayColumns();
       }
     });
@@ -114,6 +117,7 @@ export class TisColumnsBtnComponent {
       if (r?.data && Object.keys(r?.data).length != 0) {
         if(r.data?.listComponentColumnsTemplateId > 0){
           this.selectedTemplate = this.templates?.find((t: any) => t.id == r.data?.listComponentColumnsTemplateId);
+          this.selectedTemplateChange.emit(this.selectedTemplate);
         }
         console.log("getSelectedColumnsTemplate:", this.templates, this.selectedTemplate);
         this.changeDisplayColumns();
@@ -157,6 +161,7 @@ export class TisColumnsBtnComponent {
                   fromStartColumnNumber: 0,
                   fromEndColumnNumber: 0,
                 };
+                this.selectedTemplateChange.emit(this.selectedTemplate);
                 this.changeDisplayColumns();
               }
             }, err => this.helper.showHttpErrorMsg(err));
@@ -179,7 +184,7 @@ export class TisColumnsBtnComponent {
               name: 'Default'
             };
           }
-
+          this.selectedTemplateChange.emit(this.selectedTemplate);
           this.userCustomizationService.updateSelectedColumnsTemplate(this.columnCustomizationUrlConfig.updateSelectedTemplate, {id: this.selectedTemplate?.id, listComponentName: this.componentName}).subscribe((r) => {
             this.changeDisplayColumns();
           });

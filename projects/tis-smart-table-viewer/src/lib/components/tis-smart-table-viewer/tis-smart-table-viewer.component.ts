@@ -99,6 +99,13 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   @Output() onSetExtraData = new EventEmitter<any>();
   @Output() onSetTotal = new EventEmitter<number>();
 
+  selectedTemplate: any = {
+    id: -1,
+    name: 'Default',
+    fromStartColumnNumber: 0,
+    fromEndColumnNumber: 0,
+  };
+
   selectedFilterValues: SelectedFilterDisplayValuesType = [];
   finalSelectedFilterValuesToDisplay: SelectedFilterDisplayValuesType = [];
   selectedFilterGroupedValues: SelectedFiltersGroupedValuesType[] = [];
@@ -290,12 +297,12 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     // console.log(`[table-list-view-wrapper]: ngOnChanges:`, changes);
 
     if (changes['defaultDisplayedColumns']) {
-      this.handleDisplayedColumns();
+      this.handleDisplayedColumns('defaultDisplayedColumns');
     }
 
     if (changes['columnsCodeMapping']) {
       this.columnsCodeMapping = changes['columnsCodeMapping'].currentValue;
-      this.handleDisplayedColumns();
+      this.handleDisplayedColumns('columnsCodeMapping');
 
       this.columns = this.columnsCodeMapping.map(c => c.name);
       this.autoRenderColumns = this.columnsCodeMapping.filter(c => c.hasOwnProperty('valueKey'));
@@ -456,26 +463,31 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   }
 
 
-  handleDisplayedColumns() {
-    // Create a hash of current columns to check if cache is valid
-    const columnsHash = JSON.stringify(this.columnsCodeMapping.map(c => c.name));
-    
-    // Use cache if columns haven't changed
-    if (this._lastColumnsCodeMappingHash === columnsHash && this._displayedColumnsCache.length > 0) {
-      this.displayedColumns = [...this._displayedColumnsCache];
-    } else {
-      // Update cache
-      this.updateColumnMappingCache();
-      this._lastColumnsCodeMappingHash = columnsHash;
-      
-      if (this.defaultDisplayedColumns && this.defaultDisplayedColumns.length) {
-        this.displayedColumns = this.defaultDisplayedColumns.filter(c => this._columnMappingCache.has(c));
+  handleDisplayedColumns(msg: String = '') {
+
+    if(this.selectedTemplate?.id > 0 && this.defaultDisplayedColumns && this.defaultDisplayedColumns.length){
+      this.displayedColumns = this.defaultDisplayedColumns.filter(c => this._columnMappingCache.has(c));
+    }
+    else{
+      // Create a hash of current columns to check if cache is valid
+      const columnsHash = JSON.stringify(this.columnsCodeMapping.map(c => c.name));
+      // Use cache if columns haven't changed
+      if (this._lastColumnsCodeMappingHash === columnsHash && this._displayedColumnsCache.length > 0) {
+        this.displayedColumns = [...this._displayedColumnsCache];
       } else {
-        this.displayedColumns = this.columnsCodeMapping.map(c => c?.columnDef || c.name);
+        // Update cache
+        this.updateColumnMappingCache();
+        this._lastColumnsCodeMappingHash = columnsHash;
+        
+        if (this.defaultDisplayedColumns && this.defaultDisplayedColumns.length) {
+          this.displayedColumns = this.defaultDisplayedColumns.filter(c => this._columnMappingCache.has(c));
+        } else {
+          this.displayedColumns = this.columnsCodeMapping.map(c => c?.columnDef || c.name);
+        }
+        
+        // Cache the result before adding selection/drag columns
+        this._displayedColumnsCache = [...this.displayedColumns];
       }
-      
-      // Cache the result before adding selection/drag columns
-      this._displayedColumnsCache = [...this.displayedColumns];
     }
 
     // Add selection and drag columns (these are dynamic and shouldn't be cached)
@@ -488,6 +500,8 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     if (this.enableDragNDrop) {
       finalColumns.unshift('drag');
     }
+    
+    console.log(`=== handleDisplayedColumns :: ${msg} :: finalColumns  ===`, finalColumns);
     
     this.displayedColumns = finalColumns;
     this.displayedColumnsChange.emit(this.displayedColumns);
@@ -727,9 +741,16 @@ export class TisSmartTableViewerComponent implements OnDestroy {
 
   }
 
+  onSetSelectedTemplate(data: any) {
+    console.log("=== onSetSelectedTemplate ===", data);
+    // this.selectedTemplate = data;
+  }
+
   onChangeDisplayColumns(columns: string[]) {
+    console.log("=== onChangeDisplayColumns ===", columns);
+    
     this.defaultDisplayedColumns = columns;
-    this.handleDisplayedColumns();
+    this.handleDisplayedColumns('onChangeDisplayColumns');
   }
 
   onChangeFromStartColumnNumber(columnNumber: number) {

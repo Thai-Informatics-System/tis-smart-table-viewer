@@ -108,7 +108,7 @@ export class AppComponent {
 
   pageSize = 10;
   pageIndex = 0;
-  loadDataApiBaseUrl = `http://localhost:3000/dev/document-distribution/documents/get-actionable-documents`;
+  loadDataApiBaseUrl = `http://localhost:3000/dev/cm/service-request/list`;
   filterData!: any;
 
   filterFormGroup!: FormGroup;
@@ -200,12 +200,12 @@ export class AppComponent {
 
   ngOnInit(): void {
     this.columnCustomizationUrlConfig = {
-      list: '/user-customization/get-columns-templates',
-      add: '/user-customization/add-columns-template',
-      update: '/user-customization/update-columns-template',
-      delete: '/user-customization/delete-columns-template',
-      getSelectedTemplate: '/user-customization/get-selected-columns-template',
-      updateSelectedTemplate: '/user-customization/update-selected-columns-template'
+      list: 'http://localhost:3000/dev/user-customisation/get-columns-templates',
+      add: 'http://localhost:3000/dev/user-customisation/add-columns-template',
+      update: 'http://localhost:3000/dev/user-customisation/update-columns-template',
+      delete: 'http://localhost:3000/dev/user-customisation/delete-columns-template',
+      getSelectedTemplate: 'http://localhost:3000/dev/user-customisation/get-selected-columns-template',
+      updateSelectedTemplate: 'http://localhost:3000/dev/user-customisation/update-selected-columns-template'
     }
 
     this.createFilterForm();

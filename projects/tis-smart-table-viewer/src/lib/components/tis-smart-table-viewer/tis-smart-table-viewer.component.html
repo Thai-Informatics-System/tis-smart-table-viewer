@@ -33,7 +33,8 @@
                                 <ul class="tis-inline-group">
                                     <li class="tis-inline-group-item">
                                         <tis-columns-btn [columnCustomizationUrlConfig]="columnCustomizationUrlConfig" [t]="t"
-                                            [componentName]="componentName" [defaultColumns]="defaultColumns" [columns]="columns"
+                                            [componentName]="componentName" [(selectedTemplate)]="selectedTemplate" [defaultColumns]="defaultColumns" [columns]="columns"
+                                            (selectedTemplateChange)="onSetSelectedTemplate($event)"
                                             (displayedColumnsChange)="onChangeDisplayColumns($event)"
                                             (fromStartColumnNumberChange)="onChangeFromStartColumnNumber($event)"
                                             (fromEndColumnNumberChange)="onChangeFromEndColumnNumber($event)"></tis-columns-btn>
