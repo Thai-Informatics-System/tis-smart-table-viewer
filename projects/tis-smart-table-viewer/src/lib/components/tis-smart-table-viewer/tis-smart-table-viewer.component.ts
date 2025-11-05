@@ -13,6 +13,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { MatTable } from '@angular/material/table';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import * as storageHelper from '../../helpers/storage-helper';
 import { TimeoutManager } from '../../helpers/timeout-manager.helper';
@@ -145,6 +146,11 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   private computedRowBackgrounds = new Map<string, string | null>();
   
   dataSource!: ApiDataSource;
+
+  private _table!: MatTable<any>;
+  @ViewChild(MatTable) set table(value: MatTable<any>) {
+    this._table = value;
+  }
 
   private _sort!: MatSort;
   private _sortSubscription!: Subscription;
@@ -364,6 +370,12 @@ export class TisSmartTableViewerComponent implements OnDestroy {
             // ✅ FIX: Force Angular change detection to ensure table re-renders
             // This is critical for data → empty → data transitions
             this.cdr.detectChanges();
+            
+            // ✅ FIX: Force MatTable to re-render rows after data transitions
+            // This ensures rows are properly rendered when going from empty → data
+            if (this._table) {
+              this._table.renderRows();
+            }
             
             // ✅ FIX: Force change detection by emitting events
             this.onDataLoaded.emit(true);
