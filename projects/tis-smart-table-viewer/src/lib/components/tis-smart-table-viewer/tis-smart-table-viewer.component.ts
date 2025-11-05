@@ -327,6 +327,7 @@ export class TisSmartTableViewerComponent implements OnDestroy {
 
     if (changes['loadDataApiBaseUrl']) {
       if (changes['loadDataApiBaseUrl'].currentValue) {
+        // Clean up existing subscriptions
         if (this.loadingSubscription) {
           this.loadingSubscription.unsubscribe();
         }
@@ -335,6 +336,12 @@ export class TisSmartTableViewerComponent implements OnDestroy {
           this.dataLengthSubscription.unsubscribe();
         }
 
+        // ✅ FIX: Disconnect previous dataSource to prevent memory leaks
+        if (this.dataSource) {
+          this.dataSource.disconnect({} as CollectionViewer);
+        }
+
+        // Create new ApiDataSource
         this.dataSource = new ApiDataSource(this.apiService);
 
         this.loadingSubscription = this.dataSource.loading$.subscribe(loading => {
@@ -766,9 +773,15 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   }
 
   toggleSelection(status: MatCheckboxChange, row: any): void {
+    // ✅ Add null guards to prevent crashes
+    if (!row || !ValidationHelper.hasRowKey(row, this.selectedRowKey)) {
+      return;
+    }
+    
     if (this.onlySingleSelection && status.checked) {
       this.selection.clear();
     }
+    
     this.selection.toggle(row);
     this.selectedRows = this.selection.selected;
     this.selectedRowsChange.emit(this.selectedRows);
@@ -777,19 +790,35 @@ export class TisSmartTableViewerComponent implements OnDestroy {
 
 
   checkAllRowsSelected() {
+    // ✅ Add comprehensive null guards to prevent crashes
+    if (!this.dataSource?.apiSubject?.value || !Array.isArray(this.dataSource.apiSubject.value)) {
+      this.isAllRowsSelected = false;
+      this.allRowsSelectedChange.emit(this.isAllRowsSelected);
+      return;
+    }
+    
     this.isAllRowsSelected = this.selection.selected.length === this.dataSource.apiSubject.value.length;
     this.allRowsSelectedChange.emit(this.isAllRowsSelected);
   }
 
 
   toggleAllRows(): void {
+    // ✅ Add comprehensive null guards
+    if (!this.dataSource?.apiSubject?.value || !Array.isArray(this.dataSource.apiSubject.value)) {
+      return;
+    }
+    
     if (this.isAllRowsSelected) {
       this.selection.clear();
     } else {
       this.dataSource.apiSubject.value.forEach(row => {
-        this.selection.select(row);
+        // ✅ Validate each row before selecting
+        if (row && ValidationHelper.hasRowKey(row, this.selectedRowKey)) {
+          this.selection.select(row);
+        }
       });
     }
+    
     this.selectedRows = this.selection.selected;
     this.selectedRowsChange.emit(this.selectedRows);
     this.checkAllRowsSelected();
@@ -800,8 +829,14 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   }
 
   isChecked(row: any): boolean {
-    return ValidationHelper.hasRowKey(row, this.selectedRowKey) && 
-           this.selectedIds.has(row[this.selectedRowKey]);
+    // ✅ Add comprehensive null guards
+    if (!row || 
+        !ValidationHelper.hasRowKey(row, this.selectedRowKey) || 
+        !this.selectedIds) {
+      return false;
+    }
+    
+    return this.selectedIds.has(row[this.selectedRowKey]);
   }
 
   getQueryParams(url: string): Record<string, string | string[]> {
@@ -869,6 +904,11 @@ export class TisSmartTableViewerComponent implements OnDestroy {
 
 
   drop(event: CdkDragDrop<any[]>) {
+    // ✅ Add null guards to prevent crashes
+    if (!this.dataSource?.apiSubject?.value || !Array.isArray(this.dataSource.apiSubject.value)) {
+      return;
+    }
+    
     // Ignore if the item was dropped at the same index
     if (event.previousIndex === event.currentIndex) {
       return;
@@ -900,14 +940,32 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   }
 
   setSelectedRows(){
+    // ✅ Add null guards to prevent crashes
+    if (!this.dataSource?.apiSubject?.value || 
+        !Array.isArray(this.dataSource.apiSubject.value) || 
+        !this.selectedRowIds) {
+      this.selection.clear();
+      this.selectedRows = [];
+      this.selectedRowsChange.emit(this.selectedRows);
+      return;
+    }
+    
     this.selection.clear();
+    
+    // ✅ FIX: Convert array to Set for O(1) lookup instead of O(n) indexOf
+    const selectedIdsSet = new Set(this.selectedRowIds);
+    
     this.dataSource.apiSubject.value.forEach(row => {
-      if(this.selectedRowIds.indexOf(row[this.selectedRowKey]) != -1){
+      if (row && 
+          ValidationHelper.hasRowKey(row, this.selectedRowKey) && 
+          selectedIdsSet.has(row[this.selectedRowKey])) {
         this.selection.select(row);
       }
     });
+    
     this.selectedRows = this.selection.selected;
     this.selectedRowsChange.emit(this.selectedRows);
+    this.checkAllRowsSelected();
   }
 
   public resetSelectedRows(){
