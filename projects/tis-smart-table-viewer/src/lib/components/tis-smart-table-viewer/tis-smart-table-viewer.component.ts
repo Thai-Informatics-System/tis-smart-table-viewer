@@ -343,13 +343,12 @@ export class TisSmartTableViewerComponent implements OnDestroy {
           this.dataLengthSubscription.unsubscribe();
         }
 
-        // ✅ FIX: Disconnect previous dataSource to prevent memory leaks
-        if (this.dataSource) {
-          this.dataSource.disconnect({} as CollectionViewer);
+        // ✅ FIX: Only create datasource once on initialization
+        // Reusing the same datasource prevents subscription issues
+        if (!this.dataSource) {
+          this.dataSource = new ApiDataSource(this.apiService);
+          // Template binding [dataSource]="dataSource" will handle the connection
         }
-
-        // Create new ApiDataSource
-        this.dataSource = new ApiDataSource(this.apiService);
 
         this.loadingSubscription = this.dataSource.loading$.subscribe(loading => {
           if (!loading) {
