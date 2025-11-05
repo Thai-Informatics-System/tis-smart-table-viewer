@@ -927,10 +927,8 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     
     if (this.expandedRowIds.has(rowId)) {
       this.expandedRowIds.delete(rowId);
-      element.expanded = false;
     } else {
       this.expandedRowIds.add(rowId);
-      element.expanded = true;
     }
   }
 
@@ -942,17 +940,13 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     this.isAllExpanded = !this.isAllExpanded;
     
     if (this.isAllExpanded) {
-      // Add all row IDs to expanded set and set expanded property
+      // Add all row IDs to expanded set
       this.dataSource.apiSubject.value.forEach(row => {
         const rowId = this.getRowIdentifier(row);
         this.expandedRowIds.add(rowId);
-        row.expanded = true;
       });
     } else {
-      // Clear all expanded rows and remove expanded property
-      this.dataSource.apiSubject.value.forEach(row => {
-        row.expanded = false;
-      });
+      // Clear all expanded rows
       this.expandedRowIds.clear();
     }
   }
