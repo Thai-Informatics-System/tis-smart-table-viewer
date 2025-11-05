@@ -1,6 +1,6 @@
 {
   "name": "@servicemind.tis/tis-smart-table-viewer",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "peerDependencies": {
     "@angular/common": "^19.2.0",
     "@angular/core": "^19.2.0",
