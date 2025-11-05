@@ -150,6 +150,11 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   private _table!: MatTable<any>;
   @ViewChild(MatTable) set table(value: MatTable<any>) {
     this._table = value;
+    // ✅ FIX: When table becomes available, connect it to datasource if it exists
+    if (this._table && this.dataSource) {
+      // Force the table to connect to our datasource
+      this._table.dataSource = this.dataSource;
+    }
   }
 
   private _sort!: MatSort;
