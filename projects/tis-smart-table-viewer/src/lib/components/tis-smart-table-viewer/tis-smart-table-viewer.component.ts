@@ -1,5 +1,5 @@
 import { CdkColumnDef } from '@angular/cdk/table';
-import { Component, EventEmitter, Input, Output, SimpleChanges, ViewChild, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, Subject, takeUntil, tap, Observable, map, shareReplay, distinctUntilChanged, debounceTime } from 'rxjs';
@@ -221,7 +221,8 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private location: Location,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private cdr: ChangeDetectorRef
   ) {
     // Store subscription reference for proper cleanup
     this._selectionSubscription = this.selection.changed.subscribe(change => {
@@ -359,6 +360,10 @@ export class TisSmartTableViewerComponent implements OnDestroy {
             
             // ✅ FIX: Ensure selection state is updated even when data changes from empty to populated
             this.checkAllRowsSelected();
+            
+            // ✅ FIX: Force Angular change detection to ensure table re-renders
+            // This is critical for data → empty → data transitions
+            this.cdr.detectChanges();
             
             // ✅ FIX: Force change detection by emitting events
             this.onDataLoaded.emit(true);

@@ -41,6 +41,7 @@ export class ApiDataSource implements DataSource<any> {
         }
 
         this.loadingSubject.next(true);
+        
         this.apiSubs = this.apiService.getList(url, (pageIndex + 1), pageSize, search, {filter}, {sortFilter}).pipe(
             catchError(() => of([])),
             finalize(() => this.loadingSubject.next(false))
