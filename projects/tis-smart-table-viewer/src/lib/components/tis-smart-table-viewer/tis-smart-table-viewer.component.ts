@@ -350,14 +350,20 @@ export class TisSmartTableViewerComponent implements OnDestroy {
               this._paginator.pageIndex = this.pageIndex;
               this._paginator.pageSize = this.pageSize;
             }
+            
+            // ✅ FIX: Always clear caches when new data arrives (even if empty)
             // Clear background cache when new data arrives
             this.clearRowBackgroundCache();
             // Pre-compute all row backgrounds for optimal performance
             this.computeAllRowBackgrounds();
             
+            // ✅ FIX: Ensure selection state is updated even when data changes from empty to populated
             this.checkAllRowsSelected();
+            
+            // ✅ FIX: Force change detection by emitting events
             this.onDataLoaded.emit(true);
             this.onSetExtraData.emit(this.dataSource.extraDataSubject.value);
+            
             // if (this.selectedRowIds && this.selectedRowIds.length) {
             //   setTimeout(() => {
             //     this.setSelectedRows();
@@ -382,8 +388,15 @@ export class TisSmartTableViewerComponent implements OnDestroy {
         this.filterFormGroupSubscription.unsubscribe();
       }
 
+      // ✅ FIX: Use custom comparator for distinctUntilChanged to properly detect form value changes
       this.filterFormGroupSubscription = this.filterFormGroup.valueChanges
-        .pipe(takeUntil(this._onDestroy), distinctUntilChanged()).subscribe(val => {
+        .pipe(
+          takeUntil(this._onDestroy),
+          distinctUntilChanged((prev, curr) => {
+            // Custom comparator: deep compare form values
+            return JSON.stringify(prev) === JSON.stringify(curr);
+          })
+        ).subscribe(val => {
           this.filterHasNonEmptyValue = ValidationHelper.hasNonEmptyValue(val);
         })
     }
@@ -561,12 +574,24 @@ export class TisSmartTableViewerComponent implements OnDestroy {
 
   // Compute all row backgrounds when data changes (runs once per data load)
   private computeAllRowBackgrounds(): void {
-    if (!this.dataSource?.apiSubject.value || !this.rowsConfig.backgroundApplyFunction) {
+    // ✅ FIX: Always clear the cache first to ensure fresh computation
+    this.computedRowBackgrounds.clear();
+    
+    // ✅ FIX: Safely check if we have data and a background function
+    if (!this.dataSource?.apiSubject?.value || 
+        !Array.isArray(this.dataSource.apiSubject.value) || 
+        !this.rowsConfig.backgroundApplyFunction) {
       return;
     }
     
-    this.computedRowBackgrounds.clear();
-    this.dataSource.apiSubject.value.forEach((row:any) => {
+    // ✅ FIX: Only compute backgrounds if we have actual data
+    if (this.dataSource.apiSubject.value.length === 0) {
+      return;
+    }
+    
+    this.dataSource.apiSubject.value.forEach((row: any) => {
+      if (!row) return; // Skip null/undefined rows
+      
       const rowId = row?.id || row?.[this.selectedRowKey] || JSON.stringify(row);
       try {
         const background = this.rowsConfig.backgroundApplyFunction!(row);
@@ -681,6 +706,9 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     this.isAllExpanded = false;
     // Clear expansion state when loading new data to avoid stale expansion state
     CollectionHelper.clearSet(this.expandedRowIds);
+    
+    // ✅ FIX: Clear row background cache before loading new data to prevent stale computed backgrounds
+    this.clearRowBackgroundCache();
     
     const filterFormData = this.filterFormGroup?.value;
     this.filterHasNonEmptyValue = ValidationHelper.hasFormData(filterFormData);
