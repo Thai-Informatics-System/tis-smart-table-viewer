@@ -41,19 +41,20 @@ export class ApiDataSource implements DataSource<any> {
         }
 
         this.loadingSubject.next(true);
+        
         this.apiSubs = this.apiService.getList(url, (pageIndex + 1), pageSize, search, {filter}, {sortFilter}).pipe(
             catchError(() => of([])),
             finalize(() => this.loadingSubject.next(false))
         ).subscribe(r => {
             console.log(`DataSource: Url: ${url}, Reply:`, r);
-            if (r?.data?.length > 0) {
-                this.totalDataLength.next(r?.total);
-            }
-            else {
-                this.totalDataLength.next(0);
-            }
-            this.apiSubject.next(r?.data);
-            this.extraDataSubject.next(r?.extraData);
+            
+            // ✅ FIX: Ensure we always emit an array (even if empty) to prevent undefined issues
+            const data = r?.data || [];
+            const total = (Array.isArray(data) && data.length > 0) ? (r?.total || data.length) : 0;
+            
+            this.totalDataLength.next(total);
+            this.apiSubject.next(data);
+            this.extraDataSubject.next(r?.extraData || null);
         });
     }
 
@@ -77,14 +78,14 @@ export class ApiDataSource implements DataSource<any> {
 
         this.apiSubs = apiCall$.subscribe(r => {
             console.log(`DataSource: Url: ${url}, Reply:`, r);
-            if (r?.data?.length > 0) {
-                this.totalDataLength.next(r?.total);
-            }
-            else {
-                this.totalDataLength.next(0);
-            }
-            this.apiSubject.next(r?.data);
-            this.extraDataSubject.next(r?.extraData);
+            
+            // ✅ FIX: Ensure we always emit an array (even if empty) to prevent undefined issues
+            const data = r?.data || [];
+            const total = (Array.isArray(data) && data.length > 0) ? (r?.total || data.length) : 0;
+            
+            this.totalDataLength.next(total);
+            this.apiSubject.next(data);
+            this.extraDataSubject.next(r?.extraData || null);
         });
     }
 }

@@ -1,5 +1,5 @@
 import { CdkColumnDef } from '@angular/cdk/table';
-import { Component, EventEmitter, Input, Output, SimpleChanges, ViewChild, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, Subject, takeUntil, tap, Observable, map, shareReplay, distinctUntilChanged, debounceTime } from 'rxjs';
@@ -13,6 +13,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { MatTable } from '@angular/material/table';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import * as storageHelper from '../../helpers/storage-helper';
 import { TimeoutManager } from '../../helpers/timeout-manager.helper';
@@ -146,6 +147,16 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   
   dataSource!: ApiDataSource;
 
+  private _table!: MatTable<any>;
+  @ViewChild(MatTable) set table(value: MatTable<any>) {
+    this._table = value;
+    // ✅ FIX: When table becomes available, connect it to datasource if it exists
+    if (this._table && this.dataSource) {
+      // Force the table to connect to our datasource
+      this._table.dataSource = this.dataSource;
+    }
+  }
+
   private _sort!: MatSort;
   private _sortSubscription!: Subscription;
   @ViewChild(MatSort) set sort(value: MatSort) {
@@ -221,7 +232,8 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private location: Location,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private cdr: ChangeDetectorRef
   ) {
     // Store subscription reference for proper cleanup
     this._selectionSubscription = this.selection.changed.subscribe(change => {
@@ -327,6 +339,7 @@ export class TisSmartTableViewerComponent implements OnDestroy {
 
     if (changes['loadDataApiBaseUrl']) {
       if (changes['loadDataApiBaseUrl'].currentValue) {
+        // Clean up existing subscriptions
         if (this.loadingSubscription) {
           this.loadingSubscription.unsubscribe();
         }
@@ -335,7 +348,12 @@ export class TisSmartTableViewerComponent implements OnDestroy {
           this.dataLengthSubscription.unsubscribe();
         }
 
-        this.dataSource = new ApiDataSource(this.apiService);
+        // ✅ FIX: Only create datasource once on initialization
+        // Reusing the same datasource prevents subscription issues
+        if (!this.dataSource) {
+          this.dataSource = new ApiDataSource(this.apiService);
+          // Template binding [dataSource]="dataSource" will handle the connection
+        }
 
         this.loadingSubscription = this.dataSource.loading$.subscribe(loading => {
           if (!loading) {
@@ -343,14 +361,30 @@ export class TisSmartTableViewerComponent implements OnDestroy {
               this._paginator.pageIndex = this.pageIndex;
               this._paginator.pageSize = this.pageSize;
             }
+            
+            // ✅ FIX: Always clear caches when new data arrives (even if empty)
             // Clear background cache when new data arrives
             this.clearRowBackgroundCache();
             // Pre-compute all row backgrounds for optimal performance
             this.computeAllRowBackgrounds();
             
+            // ✅ FIX: Ensure selection state is updated even when data changes from empty to populated
             this.checkAllRowsSelected();
+            
+            // ✅ FIX: Force Angular change detection to ensure table re-renders
+            // This is critical for data → empty → data transitions
+            this.cdr.detectChanges();
+            
+            // ✅ FIX: Force MatTable to re-render rows after data transitions
+            // This ensures rows are properly rendered when going from empty → data
+            if (this._table) {
+              this._table.renderRows();
+            }
+            
+            // ✅ FIX: Force change detection by emitting events
             this.onDataLoaded.emit(true);
             this.onSetExtraData.emit(this.dataSource.extraDataSubject.value);
+            
             // if (this.selectedRowIds && this.selectedRowIds.length) {
             //   setTimeout(() => {
             //     this.setSelectedRows();
@@ -375,8 +409,15 @@ export class TisSmartTableViewerComponent implements OnDestroy {
         this.filterFormGroupSubscription.unsubscribe();
       }
 
+      // ✅ FIX: Use custom comparator for distinctUntilChanged to properly detect form value changes
       this.filterFormGroupSubscription = this.filterFormGroup.valueChanges
-        .pipe(takeUntil(this._onDestroy), distinctUntilChanged()).subscribe(val => {
+        .pipe(
+          takeUntil(this._onDestroy),
+          distinctUntilChanged((prev, curr) => {
+            // Custom comparator: deep compare form values
+            return JSON.stringify(prev) === JSON.stringify(curr);
+          })
+        ).subscribe(val => {
           this.filterHasNonEmptyValue = ValidationHelper.hasNonEmptyValue(val);
         })
     }
@@ -554,12 +595,24 @@ export class TisSmartTableViewerComponent implements OnDestroy {
 
   // Compute all row backgrounds when data changes (runs once per data load)
   private computeAllRowBackgrounds(): void {
-    if (!this.dataSource?.apiSubject.value || !this.rowsConfig.backgroundApplyFunction) {
+    // ✅ FIX: Always clear the cache first to ensure fresh computation
+    this.computedRowBackgrounds.clear();
+    
+    // ✅ FIX: Safely check if we have data and a background function
+    if (!this.dataSource?.apiSubject?.value || 
+        !Array.isArray(this.dataSource.apiSubject.value) || 
+        !this.rowsConfig.backgroundApplyFunction) {
       return;
     }
     
-    this.computedRowBackgrounds.clear();
-    this.dataSource.apiSubject.value.forEach((row:any) => {
+    // ✅ FIX: Only compute backgrounds if we have actual data
+    if (this.dataSource.apiSubject.value.length === 0) {
+      return;
+    }
+    
+    this.dataSource.apiSubject.value.forEach((row: any) => {
+      if (!row) return; // Skip null/undefined rows
+      
       const rowId = row?.id || row?.[this.selectedRowKey] || JSON.stringify(row);
       try {
         const background = this.rowsConfig.backgroundApplyFunction!(row);
@@ -675,6 +728,9 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     // Clear expansion state when loading new data to avoid stale expansion state
     CollectionHelper.clearSet(this.expandedRowIds);
     
+    // ✅ FIX: Clear row background cache before loading new data to prevent stale computed backgrounds
+    this.clearRowBackgroundCache();
+    
     const filterFormData = this.filterFormGroup?.value;
     this.filterHasNonEmptyValue = ValidationHelper.hasFormData(filterFormData);
 
@@ -766,9 +822,15 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   }
 
   toggleSelection(status: MatCheckboxChange, row: any): void {
+    // ✅ Add null guards to prevent crashes
+    if (!row || !ValidationHelper.hasRowKey(row, this.selectedRowKey)) {
+      return;
+    }
+    
     if (this.onlySingleSelection && status.checked) {
       this.selection.clear();
     }
+    
     this.selection.toggle(row);
     this.selectedRows = this.selection.selected;
     this.selectedRowsChange.emit(this.selectedRows);
@@ -777,19 +839,35 @@ export class TisSmartTableViewerComponent implements OnDestroy {
 
 
   checkAllRowsSelected() {
+    // ✅ Add comprehensive null guards to prevent crashes
+    if (!this.dataSource?.apiSubject?.value || !Array.isArray(this.dataSource.apiSubject.value)) {
+      this.isAllRowsSelected = false;
+      this.allRowsSelectedChange.emit(this.isAllRowsSelected);
+      return;
+    }
+    
     this.isAllRowsSelected = this.selection.selected.length === this.dataSource.apiSubject.value.length;
     this.allRowsSelectedChange.emit(this.isAllRowsSelected);
   }
 
 
   toggleAllRows(): void {
+    // ✅ Add comprehensive null guards
+    if (!this.dataSource?.apiSubject?.value || !Array.isArray(this.dataSource.apiSubject.value)) {
+      return;
+    }
+    
     if (this.isAllRowsSelected) {
       this.selection.clear();
     } else {
       this.dataSource.apiSubject.value.forEach(row => {
-        this.selection.select(row);
+        // ✅ Validate each row before selecting
+        if (row && ValidationHelper.hasRowKey(row, this.selectedRowKey)) {
+          this.selection.select(row);
+        }
       });
     }
+    
     this.selectedRows = this.selection.selected;
     this.selectedRowsChange.emit(this.selectedRows);
     this.checkAllRowsSelected();
@@ -800,8 +878,14 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   }
 
   isChecked(row: any): boolean {
-    return ValidationHelper.hasRowKey(row, this.selectedRowKey) && 
-           this.selectedIds.has(row[this.selectedRowKey]);
+    // ✅ Add comprehensive null guards
+    if (!row || 
+        !ValidationHelper.hasRowKey(row, this.selectedRowKey) || 
+        !this.selectedIds) {
+      return false;
+    }
+    
+    return this.selectedIds.has(row[this.selectedRowKey]);
   }
 
   getQueryParams(url: string): Record<string, string | string[]> {
@@ -869,6 +953,11 @@ export class TisSmartTableViewerComponent implements OnDestroy {
 
 
   drop(event: CdkDragDrop<any[]>) {
+    // ✅ Add null guards to prevent crashes
+    if (!this.dataSource?.apiSubject?.value || !Array.isArray(this.dataSource.apiSubject.value)) {
+      return;
+    }
+    
     // Ignore if the item was dropped at the same index
     if (event.previousIndex === event.currentIndex) {
       return;
@@ -900,14 +989,32 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   }
 
   setSelectedRows(){
+    // ✅ Add null guards to prevent crashes
+    if (!this.dataSource?.apiSubject?.value || 
+        !Array.isArray(this.dataSource.apiSubject.value) || 
+        !this.selectedRowIds) {
+      this.selection.clear();
+      this.selectedRows = [];
+      this.selectedRowsChange.emit(this.selectedRows);
+      return;
+    }
+    
     this.selection.clear();
+    
+    // ✅ FIX: Convert array to Set for O(1) lookup instead of O(n) indexOf
+    const selectedIdsSet = new Set(this.selectedRowIds);
+    
     this.dataSource.apiSubject.value.forEach(row => {
-      if(this.selectedRowIds.indexOf(row[this.selectedRowKey]) != -1){
+      if (row && 
+          ValidationHelper.hasRowKey(row, this.selectedRowKey) && 
+          selectedIdsSet.has(row[this.selectedRowKey])) {
         this.selection.select(row);
       }
     });
+    
     this.selectedRows = this.selection.selected;
     this.selectedRowsChange.emit(this.selectedRows);
+    this.checkAllRowsSelected();
   }
 
   public resetSelectedRows(){
