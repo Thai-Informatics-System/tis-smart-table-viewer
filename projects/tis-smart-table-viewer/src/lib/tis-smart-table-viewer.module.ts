@@ -25,6 +25,7 @@ import { ScrollingDirective } from './directives/scrolling/scrolling.directive';
 import { TisDatePipe } from './pipes/tis-date.pipe';
 import { TisDateTimePipe } from './pipes/tis-date-time.pipe';
 import { TisDateTimeWithSecondsPipe } from './pipes/tis-date-time-with-seconds.pipe';
+import { TisCurrencyPipe } from './pipes/tis-currency.pipe';
 import { Quantity } from './pipes/quantity.pipe';
 import { Money } from './pipes/money.pipe';
 import { MatMenuModule } from '@angular/material/menu';
@@ -40,6 +41,7 @@ const pipes = [
   TisDatePipe,
   TisDateTimePipe,
   TisDateTimeWithSecondsPipe,
+  TisCurrencyPipe,
   Quantity,
   Money,
 ];
