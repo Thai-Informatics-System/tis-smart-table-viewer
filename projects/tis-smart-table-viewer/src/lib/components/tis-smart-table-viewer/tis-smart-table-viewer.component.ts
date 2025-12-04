@@ -100,6 +100,8 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   @Output() onSetExtraData = new EventEmitter<any>();
   @Output() onSetTotal = new EventEmitter<number>();
 
+  @Input() hasSelectedAllRows = false;
+
   selectedTemplate: any = {
     id: -1,
     name: 'Default',

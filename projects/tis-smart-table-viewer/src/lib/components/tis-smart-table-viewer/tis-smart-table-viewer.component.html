@@ -117,13 +117,13 @@
                                             <th mat-header-cell *matHeaderCellDef>
                                                 @if (enableAllRowsSelection) {
                                                     <mat-checkbox color="primary" (change)="$event ? toggleAllRows() : null"
-                                                                [checked]="isAllRowsSelected"
+                                                                [checked]="isAllRowsSelected || hasSelectedAllRows"
                                                                 [indeterminate]="selection.hasValue() && !isAllRowsSelected">
                                                     </mat-checkbox>
                                                 }
                                             </th>
                                             <td mat-cell *matCellDef="let row">
-                                                <mat-checkbox color="primary" (click)="stopPropagation($event)" (change)="$event ? toggleSelection($event, row) : null" [checked]="isChecked(row)"></mat-checkbox>
+                                                <mat-checkbox color="primary" (click)="stopPropagation($event)" (change)="$event ? toggleSelection($event, row) : null" [checked]="isChecked(row) || hasSelectedAllRows"></mat-checkbox>
                                             </td>
                                         </ng-container>
                                     }
