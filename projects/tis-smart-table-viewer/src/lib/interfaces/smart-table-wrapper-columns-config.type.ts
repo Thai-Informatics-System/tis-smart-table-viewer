@@ -11,6 +11,8 @@ export interface SmartTableWrapperColumnsConfig {
     template?: TemplateRef<any>;
     sort: boolean;
     clickFn?: (rec: any, event?: MouseEvent) => void;
+    /** Function that returns routerLink value - enables right-click "Open in new tab" */
+    linkFn?: (row: any) => string | any[];
     filterFormKey?: string;
     transformQueryParamFn?: Function;
 }

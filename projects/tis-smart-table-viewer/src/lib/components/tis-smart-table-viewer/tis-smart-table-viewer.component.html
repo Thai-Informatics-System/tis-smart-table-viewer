@@ -154,24 +154,53 @@
 
                                             @if(column.type == 'date'){
                                                 <td mat-cell *matCellDef="let element"  class="1al-{{column.align}} 1ty-{{column.type}}" >
-                                                    <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
-                                                        {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDate) : ''}}
-                                                    </p>
+                                                    @if(column.linkFn) {
+                                                        <a [routerLink]="column.linkFn(element)" class="tis-a">
+                                                            {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDate) : ''}}
+                                                        </a>
+                                                    } @else {
+                                                        <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
+                                                            {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDate) : ''}}
+                                                        </p>
+                                                    }
                                                 </td>
                                             } @else if(column.type == 'date-time'){
                                                 <td mat-cell *matCellDef="let element" class="2al-{{column.align}} 2ty-{{column.type}}">
-                                                    <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
-                                                        {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDateTime) : ''}}
-                                                    </p>
+                                                    @if(column.linkFn) {
+                                                        <a [routerLink]="column.linkFn(element)" class="tis-a">
+                                                            {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDateTime) : ''}}
+                                                        </a>
+                                                    } @else {
+                                                        <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
+                                                            {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDateTime) : ''}}
+                                                        </p>
+                                                    }
                                                 </td>
                                             } @else if(column.type == 'date-time-with-seconds'){
                                                 <td mat-cell *matCellDef="let element" class="2al-{{column.align}} 2ty-{{column.type}}">
-                                                    <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
-                                                        {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDateTimeWithSeconds) : ''}}
-                                                    </p>
+                                                    @if(column.linkFn) {
+                                                        <a [routerLink]="column.linkFn(element)" class="tis-a">
+                                                            {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDateTimeWithSeconds) : ''}}
+                                                        </a>
+                                                    } @else {
+                                                        <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
+                                                            {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDateTimeWithSeconds) : ''}}
+                                                        </p>
+                                                    }
                                                 </td>
                                             } @else {
                                                 <td mat-cell *matCellDef="let element" class="3al-{{column.align}} 3ty-{{column.type}}" [ngClass]="getColumnClasses(column)">
+                                                    @if(column.linkFn) {
+                                                        <a [routerLink]="column.linkFn(element)" class="tis-a">
+                                                            @if (column.type == 'quantity') {
+                                                                {{ column.valueKey ? (getNestedValue(element, column.valueKey) | number : '1.4-4') : '-' }}
+                                                            } @else if (column.type == 'money') {
+                                                                {{ column.valueKey && (getNestedValue(element, column.valueKey)) | tisCurrency }}
+                                                            } @else {
+                                                                {{ column.valueKey && getNestedValue(element, column.valueKey) }}
+                                                            }
+                                                        </a>
+                                                    } @else {
                                                         <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
                                                             @if (column.type == 'quantity') {
                                                                 {{ column.valueKey ? (getNestedValue(element, column.valueKey) | number : '1.4-4') : '-' }}
@@ -181,6 +210,7 @@
                                                                 {{ column.valueKey && getNestedValue(element, column.valueKey) }}
                                                             }
                                                         </p>
+                                                    }
                                                 </td>
                                             }
                                         </ng-container>
