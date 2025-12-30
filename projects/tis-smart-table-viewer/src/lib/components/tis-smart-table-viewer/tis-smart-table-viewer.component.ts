@@ -865,7 +865,9 @@ export class TisSmartTableViewerComponent implements OnDestroy {
       this.dataSource.apiSubject.value.forEach(row => {
         // ✅ Validate each row before selecting
         if (row && ValidationHelper.hasRowKey(row, this.selectedRowKey)) {
-          this.selection.select(row);
+          if(!this.isChecked(row)) {
+            this.selection.select(row);
+          }
         }
       });
     }
