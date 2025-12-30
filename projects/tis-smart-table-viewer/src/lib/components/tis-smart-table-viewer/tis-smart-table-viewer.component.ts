@@ -832,8 +832,18 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     if (this.onlySingleSelection && status.checked) {
       this.selection.clear();
     }
-    
-    this.selection.toggle(row);
+
+    const found = this.selection?.selected.find((el: any) => {
+      return el[this.selectedRowKey] == row[this.selectedRowKey];
+    });
+
+    if (found) {
+      this.selection?.deselect(found);
+    } else {
+      this.selection?.select(row);
+    }
+
+    // this.selection.toggle(row);
     this.selectedRows = this.selection.selected;
     this.selectedRowsChange.emit(this.selectedRows);
     this.checkAllRowsSelected();
