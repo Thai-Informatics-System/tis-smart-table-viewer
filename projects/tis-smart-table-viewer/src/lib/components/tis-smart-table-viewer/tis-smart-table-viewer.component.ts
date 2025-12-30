@@ -857,8 +857,13 @@ export class TisSmartTableViewerComponent implements OnDestroy {
       this.allRowsSelectedChange.emit(this.isAllRowsSelected);
       return;
     }
+
+    this.isAllRowsSelected = this.dataSource.apiSubject.value.every((row) => {
+      const selected = this.selection?.selected.find(selection => selection[this.selectedRowKey] == row[this.selectedRowKey]);
+      return !!selected;
+    })
     
-    this.isAllRowsSelected = (this.selection.selected.length >= this.dataSource.apiSubject.value.length);
+    // this.isAllRowsSelected = (this.selection.selected.length >= this.dataSource.apiSubject.value.length);
     this.allRowsSelectedChange.emit(this.isAllRowsSelected);
   }
 
