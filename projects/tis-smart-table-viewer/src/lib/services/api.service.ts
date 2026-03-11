@@ -13,15 +13,16 @@ export class ApiService {
 
     getList(apiUrl: string, currentPage: number = 1, limit = 10, search = '', filters?: object, sortFilter?: object): Observable<any> {
         const body = { ...filters, ...sortFilter };
+        const encodedSearch = encodeURIComponent(search);
 
         if(this.token) {
-            return this.http.post(`${apiUrl}?current_page=${currentPage}&per_page=${limit}&search=${search}`, body, {
+            return this.http.post(`${apiUrl}?current_page=${currentPage}&per_page=${limit}&search=${encodedSearch}`, body, {
                 headers: {
                     'Authorization': `Bearer ${this.token}`
                 }
             });
         }
 
-        return this.http.post(`${apiUrl}?current_page=${currentPage}&per_page=${limit}&search=${search}`, body);
+        return this.http.post(`${apiUrl}?current_page=${currentPage}&per_page=${limit}&search=${encodedSearch}`, body);
     }
 }
