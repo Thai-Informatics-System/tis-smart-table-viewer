@@ -88,6 +88,6 @@ jobs:
 
       - name: Publish to npm
         run: |
-          # Remove _authToken placeholder so npm uses OIDC trusted publishing
-          sed -i '/\/\//d' "$NPM_CONFIG_USERCONFIG" || true
+          # Overwrite .npmrc with just the registry — no authToken, so npm uses OIDC trusted publishing
+          echo "registry=https://registry.npmjs.org/" > "${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
           npm publish ./dist/${{ env.LIB_NAME }} --access public --provenance
