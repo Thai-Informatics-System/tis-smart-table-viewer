@@ -27,6 +27,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: '22'
+          registry-url: 'https://registry.npmjs.org/'
 
       - name: Install dependencies
         run: npm ci --force
@@ -86,4 +87,7 @@ jobs:
           echo "✅ Build verification successful for ${{ env.LIB_NAME }}"
 
       - name: Publish to npm
-        run: npm publish ./dist/${{ env.LIB_NAME }} --access public --provenance
+        run: |
+          # Remove _authToken placeholder so npm uses OIDC trusted publishing
+          sed -i '/\/\//d' "$NPM_CONFIG_USERCONFIG" || true
+          npm publish ./dist/${{ env.LIB_NAME }} --access public --provenance
