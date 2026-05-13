@@ -8,11 +8,12 @@ import { DateTime } from 'luxon';
 })
 export class TisDateTimePipe implements PipeTransform {
 
-  transform(value: unknown, ...args: unknown[]): string {
+  transform(value: unknown, format?: string): string {
+    const fmt = format || 'dd MMM yyyy hh:mm a';
     if (typeof value == 'string' && value !== '') {
-      return DateTime.fromMillis(+value).toFormat('dd MMM yyyy hh:mm a');
+      return DateTime.fromMillis(+value).toFormat(fmt);
     } else if (typeof value == 'number') {
-      return DateTime.fromMillis(value).toFormat('dd MMM yyyy hh:mm a');
+      return DateTime.fromMillis(value).toFormat(fmt);
     } else if (value === null || value === undefined) {
       return '';
     } else {

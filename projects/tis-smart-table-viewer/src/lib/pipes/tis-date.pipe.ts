@@ -7,13 +7,14 @@ import { DateTime } from 'luxon';
 })
 export class TisDatePipe implements PipeTransform {
 
-  transform(value: unknown, ...args: unknown[]): string {
+  transform(value: unknown, format?: string): string {
+    const fmt = format || 'dd MMM yyyy';
     if (typeof value == 'string' && value !== '') {
-      return DateTime.fromMillis(+value).toFormat('dd MMM yyyy');
+      return DateTime.fromMillis(+value).toFormat(fmt);
     } else if (typeof value == 'number') {
-      return DateTime.fromMillis(value).toFormat('dd MMM yyyy');
+      return DateTime.fromMillis(value).toFormat(fmt);
     } else if (value instanceof Date) {
-      return DateTime.fromJSDate(value).toFormat('dd MMM yyyy');
+      return DateTime.fromJSDate(value).toFormat(fmt);
     } else if (value === null || value === undefined) {
       return '';
     } else {

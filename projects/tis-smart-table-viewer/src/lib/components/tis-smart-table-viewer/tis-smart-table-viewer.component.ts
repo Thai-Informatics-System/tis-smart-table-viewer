@@ -4,7 +4,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, Subject, takeUntil, tap, Observable, map, shareReplay, distinctUntilChanged, debounceTime } from 'rxjs';
 import type { SmartTableWrapperRowsConfig } from '../../interfaces';
-import { AnyKeyValueObject, SelectedFilterDisplayValuesType, SelectedFilterDisplayValueType, SelectedFiltersGroupedValuesType, SmartTableWrapperColumnsConfig } from '../../interfaces';
+import { AnyKeyValueObject, ColumnValueTypeFormats, SelectedFilterDisplayValuesType, SelectedFilterDisplayValueType, SelectedFiltersGroupedValuesType, SmartTableWrapperColumnsConfig } from '../../interfaces';
 import { CollectionViewer, SelectionModel } from '@angular/cdk/collections';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ApiDataSource } from '../../datasources/api.datasource';
@@ -64,6 +64,9 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     secondBtnClick: null
   };
   @Input() showFilterButtonSection!: boolean;
+
+  /** Optional per-column format config. Key = column name, Value = format string. Defaults to empty (uses built-in formats). */
+  @Input() columnValueTypeFormats: ColumnValueTypeFormats = {};
 
   @Input({ required: true }) columnsCodeMapping!: SmartTableWrapperColumnsConfig[];
   autoRenderColumns!: SmartTableWrapperColumnsConfig[];
@@ -646,6 +649,10 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     return CollectionHelper.getNestedProperty(obj, path);
   }
 
+  /** Returns the custom format string for a column type, or undefined if not set (uses pipe defaults). */
+  getColumnFormat(columnType: string): string | undefined {
+    return this.columnValueTypeFormats[columnType as keyof ColumnValueTypeFormats];
+  }
 
 
   private groupByFormControlAttributes(data: SelectedFilterDisplayValueType[]): SelectedFiltersGroupedValuesType[] {

@@ -6,7 +6,12 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class TisCurrencyPipe implements PipeTransform {
 
-  transform(value: number | string | null | undefined, decimals: number = 2): string {
+  transform(value: number | string | null | undefined, decimals: number | string = 2): string {
+    // Support string decimals passed from template format config
+    if (typeof decimals === 'string') {
+      decimals = parseInt(decimals, 10);
+      if (isNaN(decimals)) decimals = 2;
+    }
     // Handle null, undefined, or empty values
     if (value === null || value === undefined || value === '') {
       return '';
