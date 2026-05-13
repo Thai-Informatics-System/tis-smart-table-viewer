@@ -45,7 +45,7 @@
                                     <ul class="tis-inline-group">
                                         <ng-content select="[slot='filter-right-button-section']"></ng-content>
                                     </ul>
-                                    @if(!isMobile && searchPlaceholder && searchPlaceholder != ''){
+                                    @if((!isMobile || !isSearchFieldMobileResponsive) && searchPlaceholder && searchPlaceholder != ''){
                                         <mat-form-field
                                             class="custom-mat-form-field-mb-0 search-mat-form-field ml-3 tis-table-search-field"
                                             appearance="outline">
@@ -86,7 +86,7 @@
                             }
                         }
 
-                        @if(isMobile && searchPlaceholder && searchPlaceholder != ''){
+                        @if((isMobile && isSearchFieldMobileResponsive) && searchPlaceholder && searchPlaceholder != ''){
                             <mat-form-field
                                 class="custom-mat-form-field-mb-0 search-mat-form-field mb-3 tis-table-search-field"
                                 appearance="outline">

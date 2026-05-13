@@ -51,6 +51,7 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   @Input() loadDataApiBaseUrl!: string;
   @Input() startStickyColumnCount!: number;
   @Input() endStickyColumnCount!: number;
+  @Input() isSearchFieldMobileResponsive: boolean = true;
   @Input() loaderPosition: 'top' | 'bottom' = 'top';
   @Input({ required: true }) dataNotFoundConfig: DataNotFoundConfig = {
     title: 'No Data Found',
