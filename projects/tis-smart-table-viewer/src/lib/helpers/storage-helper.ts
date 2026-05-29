@@ -17,7 +17,16 @@ export const getFromLocalStorageWithExpiry = (key: string) => {
     if (!itemStr) {
         return null;
     }
-    const item = JSON.parse(itemStr);
+    // Guard against corrupt / non-JSON values (e.g. written by an older version
+    // or other code). Treat an unparseable entry as missing and self-heal by
+    // removing it, instead of throwing and breaking the caller (ngOnChanges).
+    let item: any;
+    try {
+        item = JSON.parse(itemStr);
+    } catch {
+        localStorage.removeItem(key);
+        return null;
+    }
     const now = new Date();
 
     if (!item.expiry) {
