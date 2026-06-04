@@ -79,10 +79,14 @@ export class QueryParamsHelper {
 
       // Handle fixed parameters
       if (key.toLowerCase() === 'pageindex') {
-        pageIndex = Number(value);
+        // Guard against malformed/stale URLs (NaN, negative): fall back to 0.
+        const n = Number(value);
+        pageIndex = (isFinite(n) && n >= 0) ? n : 0;
         fixedKeyMatched = true;
       } else if (key.toLowerCase() === 'pagesize') {
-        pageSize = Number(value);
+        // Guard against malformed/stale URLs (NaN, zero, negative): fall back to 10.
+        const n = Number(value);
+        pageSize = (isFinite(n) && n > 0) ? n : 10;
         fixedKeyMatched = true;
       } else if (key.toLowerCase() === 'sortby') {
         sortParams.sortBy = value;

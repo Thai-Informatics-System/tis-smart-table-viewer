@@ -805,21 +805,31 @@ export class TisSmartTableViewerComponent implements OnDestroy {
 
 
   onPaginationChanges() {
-    if (this.pageIndex != this._paginator.pageIndex) {
-      this.pageIndex = this._paginator.pageIndex;
+    // Read both new values up front. Changing the page size on a non-first page
+    // makes mat-paginator recompute pageIndex AND pageSize in a single event;
+    // handling them in two separate getList() calls used to fail because the
+    // first call writes the (still old) pageSize back onto the paginator
+    // (see getList), making the second comparison false and dropping the new
+    // page size. Capture both, apply both, and load once.
+    const newPageIndex = this._paginator.pageIndex;
+    const newPageSize = this._paginator.pageSize;
+    const pageIndexChanged = this.pageIndex != newPageIndex;
+    const pageSizeChanged = this.pageSize != newPageSize;
+
+    if (pageIndexChanged || pageSizeChanged) {
+      this.pageIndex = newPageIndex;
+      this.pageSize = newPageSize;
       // Clear computed backgrounds before loading new page data
       this.clearRowBackgroundCache();
       this.getList();
-      this.pageIndexChange.emit(this.pageIndex);
-    }
 
-    if (this.pageSize != this._paginator.pageSize) {
-      this.pageSize = this._paginator.pageSize;
-      // Clear computed backgrounds before loading new page size data
-      this.clearRowBackgroundCache();
-      this.getList();
-      this.pageSizeChange.emit(this.pageSize);
-      storageHelper.setToLocalStorageWithExpiry('user_pagination_page_size', this.pageSize, 1000 * 60 * 60 * 24 * 15);
+      if (pageIndexChanged) {
+        this.pageIndexChange.emit(this.pageIndex);
+      }
+      if (pageSizeChanged) {
+        this.pageSizeChange.emit(this.pageSize);
+        storageHelper.setToLocalStorageWithExpiry('user_pagination_page_size', this.pageSize, 1000 * 60 * 60 * 24 * 15);
+      }
     }
 
   }
