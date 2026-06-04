@@ -52,6 +52,7 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   @Input() startStickyColumnCount!: number;
   @Input() endStickyColumnCount!: number;
   @Input() isSearchFieldMobileResponsive: boolean = true;
+  @Input() isMobileResponsiveTable: boolean = false;
   @Input() loaderPosition: 'top' | 'bottom' = 'top';
   @Input({ required: true }) dataNotFoundConfig: DataNotFoundConfig = {
     title: 'No Data Found',
@@ -223,10 +224,18 @@ export class TisSmartTableViewerComponent implements OnDestroy {
   @Input() isExpansion: boolean = false;
   @Input() isExpandedRow: boolean = false;
   @Input() expandedTemplate: any;
+  
+  @Input() isExpansionForMobileResponsive: boolean = false;
+  @Input() isExpandedRowForMobileResponsive: boolean = false;
+  @Input() expandedTemplateForMobileResponsive: any;
+  @Input() headerTemplateForEachRowForMobileResponsive: any;
+
   isAllExpanded: boolean = false;
+  isAllExpandedForMobileResponsive: boolean = false;
   
   // Expansion state management - avoid direct mutation
   private expandedRowIds: Set<string | number> = new Set();
+  private expandedRowIdsForMobileResponsive: Set<string | number> = new Set();
 
   isHandset$!: Observable<boolean>;
   isMobile: boolean = false;
@@ -475,7 +484,7 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     this.selection.clear();
     CollectionHelper.clearSet(this.selectedIds);
     CollectionHelper.clearSet(this.expandedRowIds);
-    
+    CollectionHelper.clearSet(this.expandedRowIdsForMobileResponsive);
     // Clear arrays to free memory using CollectionHelper
     CollectionHelper.clearArray(this.selectedFilterValues);
     CollectionHelper.clearArray(this.finalSelectedFilterValuesToDisplay);
@@ -592,6 +601,13 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     if (!this.isExpansion) return false;
     const rowId = this.getRowIdentifier(row);
     return this.expandedRowIds.has(rowId);
+  }
+
+  // Helper method to check if a row is expanded (non-mutating)
+  public isRowExpandedForMobileResponsive(row: any): boolean {
+    if (!this.isExpansionForMobileResponsive) return false;
+    const rowId = this.getRowIdentifier(row);
+    return this.expandedRowIdsForMobileResponsive.has(rowId);
   }
 
   // Clear background cache when data changes to ensure fresh calculations
@@ -737,6 +753,7 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     this.isAllExpanded = false;
     // Clear expansion state when loading new data to avoid stale expansion state
     CollectionHelper.clearSet(this.expandedRowIds);
+    CollectionHelper.clearSet(this.expandedRowIdsForMobileResponsive);
     
     // ✅ FIX: Clear row background cache before loading new data to prevent stale computed backgrounds
     this.clearRowBackgroundCache();
@@ -1082,6 +1099,40 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     } else {
       // Clear all expanded rows
       this.expandedRowIds.clear();
+    }
+  }
+
+  /** Toggles the expanded state of an element. */
+  public toggleExpandForMobileResponsive(element: any) {
+    if (!this.isExpansionForMobileResponsive || !element) {
+      return;
+    }
+    
+    const rowId = this.getRowIdentifier(element);
+    
+    if (this.expandedRowIdsForMobileResponsive.has(rowId)) {
+      this.expandedRowIdsForMobileResponsive.delete(rowId);
+    } else {
+      this.expandedRowIdsForMobileResponsive.add(rowId);
+    }
+  }
+
+  public expandAllRowForMobileResponsive(){
+    if (!this.isExpansionForMobileResponsive || !this.dataSource?.apiSubject?.value) {
+      return;
+    }
+    
+    this.isAllExpandedForMobileResponsive = !this.isAllExpandedForMobileResponsive;
+    
+    if (this.isAllExpandedForMobileResponsive) {
+      // Add all row IDs to expanded set
+      this.dataSource.apiSubject.value.forEach(row => {
+        const rowId = this.getRowIdentifier(row);
+        this.expandedRowIdsForMobileResponsive.add(rowId);
+      });
+    } else {
+      // Clear all expanded rows
+      this.expandedRowIdsForMobileResponsive.clear();
     }
   }
 }

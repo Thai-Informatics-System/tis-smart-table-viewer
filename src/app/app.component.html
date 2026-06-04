@@ -13,7 +13,9 @@
                     btnUrl: '/admin/service-management/cases/add'}
                 "
                 [enableRowsSelection]="true" [enableAllRowsSelection]="true" [selectedRowIds]="selectedRowIds" (selectedRowsChange)="selectedRowsChanged($event)"
-                (onDataLoaded)="onDataLoaded($event)" (onSetExtraData)="onSetExtraData($event)" (onSetTotal)="onSetTotal($event)">
+                (onDataLoaded)="onDataLoaded($event)" (onSetExtraData)="onSetExtraData($event)" (onSetTotal)="onSetTotal($event)"
+                [isMobileResponsiveTable]="true" [isExpansionForMobileResponsive]="true" [isExpandedRowForMobileResponsive]="false"
+                [expandedTemplateForMobileResponsive]="expandedDetailTemplateForMobileResponsive" [headerTemplateForEachRowForMobileResponsive]="headerTemplateForEachRowForMobileResponsive">
 
                 <!--Filter Buttons-->
                 <ng-container slot="filter-button-section">
@@ -125,55 +127,79 @@
                 <!-- Filter Section End -->
 
                 <!-- TABLE START -->
-        <ng-template let-column="colDef" let-element="colData" #titleColumnTemplate>
-            <a [routerLink]="['/admin/document-distribution/documents/details', element?.id]"
-                class="tis-a">{{element?.title2}}</a><span *ngIf="element?.isViewMoreTitle">...</span><span
-                *ngIf="element?.isViewMoreTitle" class="tis-a" style="font-size: 12px;"
-                > View more </span>
-        </ng-template>
-        
-        <ng-template let-column="colDef" let-element="colData" #descriptionColumnTemplate>
-            <a [routerLink]="['/admin/document-distribution/documents/details', element?.id]"
-                class="tis-a">{{element?.description2}}</a><span *ngIf="element?.isViewMoreDescription">...</span><span
-                *ngIf="element?.isViewMoreDescription" class="tis-a" style="font-size: 12px;"
-                > View more </span>
-        </ng-template>
-        
-        <ng-template let-column="colDef" let-element="colData" #documentStatusColumnTemplate>
-            <span class="tis-badge-round" [ngClass]="{ 
-                                'document-status-badge-outline-draft': element.currentDocumentStatus == 0, 
-                                'document-status-badge-outline-new': element.currentDocumentStatus == 1, 
-                                'document-status-badge-outline-pending': element.currentDocumentStatus == 2, 
-                                'document-status-badge-outline-approved': element.currentDocumentStatus == 3, 
-                                'document-status-badge-outline-rejected': element.currentDocumentStatus == 4, 
-                                'document-status-badge-outline-completed': element.currentDocumentStatus == 5, 
-                                }">
-                {{element.documentStatus}}
-            </span>
-        </ng-template>
-        
-        <ng-template let-column="colDef" let-element="colData" #trackingStatusColumnTemplate>
-            @if(element.trackingStatus) {
-            <span class="tis-badge-round" [ngClass]="{ 
-                            'document-status-badge-outline-ready-for-pickup': element.currentTrackingStatus == 2, 
-                            'document-status-badge-outline-picked-up': element.currentTrackingStatus == 3, 
-                            'document-status-badge-outline-delivered': element.currentTrackingStatus == 4, 
-                            'document-status-badge-outline-received': element.currentTrackingStatus == 5, 
-                    }">
-                {{element.trackingStatus}}
-            </span>
-            }
-        </ng-template>
-        
-        <ng-template let-column="colDef" let-element="colData" #actionColumnTemplate>
-            <ul class="tis-btn-group">
-                <li class="tis-btn-group-item">
-                    <button mat-icon-button matTooltip="Print Cover Sheet">
-                        <mat-icon class="tis-text-primary">print</mat-icon>
-                    </button>
-                </li>
-            </ul>
-        </ng-template>
+                <ng-template let-column="colDef" let-element="colData" #clientColumnTemplate>
+                    <div class="flex items-center gap-2">
+                        <!-- @if (element.fav) {
+                        <svg class="w-4 h-4 text-yellow-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        } @else {
+                        <svg class="w-4 h-4 text-gray-300 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        } -->
+                        <div>
+                        <div class="font-[500]">{{element.name}}</div>
+                        <div class="text-xs">{{element.code}}</div>
+                        </div>
+                    </div>
+                </ng-template>
+
+                <ng-template let-column="colDef" let-element="colData" #propensityColumnTemplate>
+                    <span class="inline-flex items-center gap-1 font-semibold" [class.text-green-500]="element.trend==='up'" [class.text-red-500]="element.trend==='down'">
+                        <!-- @if (element.trend === 'up') {
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                        } @else {
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+                        } -->
+                        {{element.propensity}}%
+                    </span>
+                </ng-template>
+
+                <ng-template let-column="colDef" let-element="colData" #statusColumnTemplate>
+                    <span class="tis-badge tis-badge-xs tis-badge-no-border"
+                        [class.tis-badge-outline-success]="element.status === 'active'"
+                        [class.tis-badge-outline-secondary-2]="element.status === 'inactive'"
+                        [class.tis-badge-outline-primary]="element.status === 'new'"
+                        [class.tis-badge-outline-danger]="element.status === 'churned'"
+                    >
+                        {{
+                            element.status === 'active' ? t('active') : 
+                            element.status === 'inactive' ? t('inactive') : 
+                            element.status === 'new' ? t('new') : t('churned')
+                        }}
+                    </span>
+                </ng-template>
+
+                <ng-template let-column="colDef" let-element="colData" #actionColumnTemplate>
+                    <ul class="tis-btn-group">
+                        <li class="tis-btn-group-item">
+                            <button mat-stroked-button class="tis-bg-light tis-btn-sm">
+                                <div class="flex items-center">
+                                    <mat-icon>visibility</mat-icon>
+                                    <span class="lg:inline hidden ml-2">{{t("viewDetail")}}</span>
+                                </div>
+                            </button>
+                        </li>
+                    </ul>
+                </ng-template>
+
+                <ng-template let-column="colDef" let-element="colData" #headerTemplateForEachRowForMobileResponsive>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <p>Table Header for Mobile Responsive</p>
+                        <button mat-icon-button (click)="toggleExpandForMobileResponsive(element)">
+                            @if (!isRowExpandedForMobileResponsive(element)) {
+                            <mat-icon>expand_more</mat-icon>
+                            }
+                            @if (isRowExpandedForMobileResponsive(element)) {
+                            <mat-icon>expand_less</mat-icon>
+                            }
+                        </button>
+                    </div>
+                </ng-template>
+
+                <ng-template let-column="colDef" let-element="colData" #expandedDetailTemplateForMobileResponsive>
+                    @if(isRowExpandedForMobileResponsive(element)){
+                        <p>Expanded Detail Template for Mobile Responsive</p>
+                        <p>{{element | json}}</p>
+                    }
+                </ng-template>
                 <!-- TABLE END -->
             </tis-smart-table-viewer>
         </div>

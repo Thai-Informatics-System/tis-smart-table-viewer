@@ -41,7 +41,7 @@ const uiImports = [
 
 @Component({
   selector: 'app-root',
-  imports: [TranslocoModule, TisSmartTableViewerModule, CommonModule, FormsModule, ReactiveFormsModule, RouterLink, ...uiImports],
+  imports: [TranslocoModule, TisSmartTableViewerModule, CommonModule, FormsModule, ReactiveFormsModule, ...uiImports],
   providers: [provideTranslocoScope('common')],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -51,40 +51,26 @@ export class AppComponent {
   @ViewChild('mainTableWrapper') tableListViewWrapperComponent!: TisSmartTableViewerComponent;
 
   columnsCodeMapping: SmartTableWrapperColumnsConfig[] = [
-    { name: "submissionDate", type: 'date', serverKeyCode: "submittedAt", valueKey: 'submittedAt', sort: true },
-    { name: "documentNo", type: 'string', serverKeyCode: "documentNumber", valueKey: 'documentNumber', sort: true, },
-    // { name: "company", type: 'string', serverKeyCode: "companyName", valueKey: 'companyName', sort: true },
-    { name: "title", type: 'string', serverKeyCode: "title", template: this.titleColumnTemplate, sort: true },
-    { name: "description", type: 'string', serverKeyCode: "description", template: this.descriptionColumnTemplate, sort: true },
-    // { name: "documentType", type: 'string', serverKeyCode: "documentType", valueKey: 'documentType', sort: true },
-    // { name: "routingType", type: 'string', serverKeyCode: "routingType", valueKey: 'routingTypeName', sort: true },
-    // { name: "deliveryMethod", type: 'string', serverKeyCode: "deliveryMethod", valueKey: 'deliveryMethodName', sort: true },
-    { name: "initiator", type: 'string', serverKeyCode: "initiatorName", valueKey: 'initiatorName', sort: true },
-    { name: "owner", type: 'string', serverKeyCode: "ownerName", valueKey: 'ownerName', sort: true },
-    { name: "documentStatus", type: 'string', serverKeyCode: "currentDocumentStatus", template: this.documentStatusColumnTemplate, sort: true },
-    { name: "trackingStatus", type: 'string', serverKeyCode: "currentTrackingStatus", template: this.trackingStatusColumnTemplate, sort: true },
-    // { name: "dateCreated", type: 'date', serverKeyCode: "createdAt", valueKey: 'createdAt', sort: true },
-    { name: "lastUpdated", type: 'date', serverKeyCode: "updatedAt", valueKey: 'updatedAt', sort: true },
-    { name: "lastUpdatedBy", type: 'string', serverKeyCode: "updatedByName", valueKey: 'updatedByName', sort: true },
+    { name: "client", type: 'string', serverKeyCode: "name", template: this.clientColumnTemplate, sort: false },
+    { name: "phoneNumber", type: 'string', serverKeyCode: "phone", valueKey: 'phone', sort: true },
+    { name: "email", type: 'string', serverKeyCode: "email", valueKey: 'email', sort: true },
+    { name: "segmentation", type: 'string', serverKeyCode: "segment", valueKey: 'segment', sort: false },
+    { name: "twelveMonthSpend", type: 'money', serverKeyCode: "spend", valueKey: 'spend', sort: false },
+    { name: "propensity", type: 'string', serverKeyCode: "propensity", template: this.propensityColumnTemplate, sort: false },
+    { name: "lastPurchase", type: 'date', serverKeyCode: "lastPurchase", valueKey: 'lastPurchase', sort: true },
+    { name: "status", type: 'string', serverKeyCode: "status", template: this.statusColumnTemplate, sort: false },
     { name: "action", type: 'action', serverKeyCode: "action", template: this.actionColumnTemplate, sort: false },
   ];
 
-  @ViewChild('titleColumnTemplate') set titleColumnTemplate(value: TemplateRef<any>) {
-    this.setColumnTemplateMapping('title', value);
+  @ViewChild('clientColumnTemplate') set clientColumnTemplate(value: TemplateRef<any>) {
+    this.setColumnTemplateMapping('client', value);
   }
-
-  @ViewChild('descriptionColumnTemplate') set descriptionColumnTemplate(value: TemplateRef<any>) {
-    this.setColumnTemplateMapping('description', value);
+  @ViewChild('propensityColumnTemplate') set propensityColumnTemplate(value: TemplateRef<any>) {
+    this.setColumnTemplateMapping('propensity', value);
   }
-
-  @ViewChild('documentStatusColumnTemplate') set documentStatusColumnTemplate(value: TemplateRef<any>) {
-    this.setColumnTemplateMapping('documentStatus', value);
+  @ViewChild('statusColumnTemplate') set statusColumnTemplate(value: TemplateRef<any>) {
+    this.setColumnTemplateMapping('status', value);
   }
-
-  @ViewChild('trackingStatusColumnTemplate') set trackingStatusColumnTemplate(value: TemplateRef<any>) {
-    this.setColumnTemplateMapping('trackingStatus', value);
-  }
-
   @ViewChild('actionColumnTemplate') set actionColumnTemplate(value: TemplateRef<any>) {
     this.setColumnTemplateMapping('action', value);
   }
@@ -108,7 +94,7 @@ export class AppComponent {
 
   pageSize = 10;
   pageIndex = 0;
-  loadDataApiBaseUrl = `http://localhost:3000/dev/cm/service-request/list`;
+  loadDataApiBaseUrl = `http://localhost:3000/dev/client-module/clients/list`;
   filterData!: any;
 
   filterFormGroup!: FormGroup;
@@ -303,6 +289,14 @@ export class AppComponent {
 
   onSetTotal(total: number) {
     console.log("=== onSetTotal ===", total);
+  }
+
+  toggleExpandForMobileResponsive(element: any){
+    this.tableListViewWrapperComponent.toggleExpandForMobileResponsive(element);
+  }
+
+  isRowExpandedForMobileResponsive(element: any) {
+    return this.tableListViewWrapperComponent.isRowExpandedForMobileResponsive(element);
   }
 
 }

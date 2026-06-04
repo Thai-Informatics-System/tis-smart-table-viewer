@@ -109,204 +109,240 @@
                         <div class="tis-table-container-body">
                             <div class="tis-table-wrapper" [appScrolling]="true">
 
-                                <!--Table Here-->
-                                <table mat-table matSort [dataSource]="dataSource" class="tis-table" [class.tis-table-bordered]="disableBorderedView == false" cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListLockAxis]="'y'" multiTemplateDataRows>
+                                @if ( isMobileResponsiveTable == false || (isMobileResponsiveTable == true && isMobile == false)) {
+                                    <!--Table Here-->
+                                    <table mat-table matSort [dataSource]="dataSource" class="tis-table" [class.tis-table-bordered]="disableBorderedView == false" cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListLockAxis]="'y'" multiTemplateDataRows>
 
-                                    @if (enableRowsSelection) {
-                                        <ng-container matColumnDef="Select">
-                                            <th mat-header-cell *matHeaderCellDef>
-                                                @if (enableAllRowsSelection) {
-                                                    <mat-checkbox color="primary" (change)="$event ? toggleAllRows() : null"
-                                                                [checked]="isAllRowsSelected || hasSelectedAllRows"
-                                                                [indeterminate]="selection.hasValue() && !isAllRowsSelected">
-                                                    </mat-checkbox>
+                                        @if (enableRowsSelection) {
+                                            <ng-container matColumnDef="Select">
+                                                <th mat-header-cell *matHeaderCellDef>
+                                                    @if (enableAllRowsSelection) {
+                                                        <mat-checkbox color="primary" (change)="$event ? toggleAllRows() : null"
+                                                                    [checked]="isAllRowsSelected || hasSelectedAllRows"
+                                                                    [indeterminate]="selection.hasValue() && !isAllRowsSelected">
+                                                        </mat-checkbox>
+                                                    }
+                                                </th>
+                                                <td mat-cell *matCellDef="let row">
+                                                    <mat-checkbox color="primary" (click)="stopPropagation($event)" (change)="$event ? toggleSelection($event, row) : null" [checked]="isChecked(row) || hasSelectedAllRows"></mat-checkbox>
+                                                </td>
+                                            </ng-container>
+                                        }
+
+                                        @for(column of autoRenderColumns; track trackByAutoColumn($index, column); let i = $index; let l = $last){
+                                            <!-- [sticky]="i < startStickyColumnCount" [stickyEnd]="i > (autoRenderColumns?.length - endStickyColumnCount)" -->
+                                            <ng-container [matColumnDef]="column?.columnDef || column.name" [sticky]="isStickyStart(column?.columnDef || column.name)" [stickyEnd]="isStickyEnd(column?.columnDef || column.name)">
+                                                @if(column.type == 'expand') {
+                                                    <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
+                                                        <div style="display: flex; align-items: center; gap: 5px;">
+                                                            <span>{{ column?.columnName ? column?.columnName : t[column.name] }}</span>
+                                                            <mat-icon *ngIf="!isAllExpanded">expand_more</mat-icon>
+                                                            <mat-icon *ngIf="isAllExpanded">expand_less</mat-icon>
+                                                        </div>
+                                                    </th>
                                                 }
-                                            </th>
-                                            <td mat-cell *matCellDef="let row">
-                                                <mat-checkbox color="primary" (click)="stopPropagation($event)" (change)="$event ? toggleSelection($event, row) : null" [checked]="isChecked(row) || hasSelectedAllRows"></mat-checkbox>
-                                            </td>
-                                        </ng-container>
-                                    }
+                                                @else if(column.sort) {
+                                                    <th mat-header-cell mat-sort-header *matHeaderCellDef [ngClass]="getColumnClasses(column)">
+                                                        {{ column?.columnName ? column?.columnName : t[column.name] }}
+                                                    </th>
+                                                }
+                                                @else {
+                                                    <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
+                                                        {{ column?.columnName ? column?.columnName : t[column.name] }}
+                                                    </th>
+                                                }
+                                                
 
-                                    @for(column of autoRenderColumns; track trackByAutoColumn($index, column); let i = $index; let l = $last){
-                                        <!-- [sticky]="i < startStickyColumnCount" [stickyEnd]="i > (autoRenderColumns?.length - endStickyColumnCount)" -->
-                                        <ng-container [matColumnDef]="column?.columnDef || column.name" [sticky]="isStickyStart(column?.columnDef || column.name)" [stickyEnd]="isStickyEnd(column?.columnDef || column.name)">
-                                            @if(column.type == 'expand') {
-                                                <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
-                                                    <div style="display: flex; align-items: center; gap: 5px;">
-                                                        <span>{{ column?.columnName ? column?.columnName : t[column.name] }}</span>
-                                                        <mat-icon *ngIf="!isAllExpanded">expand_more</mat-icon>
-                                                        <mat-icon *ngIf="isAllExpanded">expand_less</mat-icon>
-                                                    </div>
-                                                </th>
-                                            }
-                                            @else if(column.sort) {
-                                                <th mat-header-cell mat-sort-header *matHeaderCellDef [ngClass]="getColumnClasses(column)">
-                                                    {{ column?.columnName ? column?.columnName : t[column.name] }}
-                                                </th>
-                                            }
-                                            @else {
-                                                <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
-                                                    {{ column?.columnName ? column?.columnName : t[column.name] }}
-                                                </th>
-                                            }
-                                            
-
-                                            @if(column.type == 'date'){
-                                                <td mat-cell *matCellDef="let element"  class="1al-{{column.align}} 1ty-{{column.type}}" >
-                                                    @if(column.linkFn) {
-                                                        <a [routerLink]="column.linkFn(element)" class="tis-a">
-                                                            {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDate : getColumnFormat(column.type)) : ''}}
-                                                        </a>
-                                                    } @else {
-                                                        <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
-                                                            {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDate : getColumnFormat(column.type)) : ''}}
-                                                        </p>
-                                                    }
-                                                </td>
-                                            } @else if(column.type == 'date-time'){
-                                                <td mat-cell *matCellDef="let element" class="2al-{{column.align}} 2ty-{{column.type}}">
-                                                    @if(column.linkFn) {
-                                                        <a [routerLink]="column.linkFn(element)" class="tis-a">
-                                                            {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDateTime : getColumnFormat(column.type)) : ''}}
-                                                        </a>
-                                                    } @else {
-                                                        <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
-                                                            {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDateTime : getColumnFormat(column.type)) : ''}}
-                                                        </p>
-                                                    }
-                                                </td>
-                                            } @else if(column.type == 'date-time-with-seconds'){
-                                                <td mat-cell *matCellDef="let element" class="2al-{{column.align}} 2ty-{{column.type}}">
-                                                    @if(column.linkFn) {
-                                                        <a [routerLink]="column.linkFn(element)" class="tis-a">
-                                                            {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDateTimeWithSeconds : getColumnFormat(column.type)) : ''}}
-                                                        </a>
-                                                    } @else {
-                                                        <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
-                                                            {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDateTimeWithSeconds : getColumnFormat(column.type)) : ''}}
-                                                        </p>
-                                                    }
-                                                </td>
-                                            } @else {
-                                                <td mat-cell *matCellDef="let element" class="3al-{{column.align}} 3ty-{{column.type}}" [ngClass]="getColumnClasses(column)">
-                                                    @if(column.linkFn) {
-                                                        <a [routerLink]="column.linkFn(element)" class="tis-a">
-                                                            @if (column.type == 'quantity') {
-                                                                {{ column.valueKey ? (getNestedValue(element, column.valueKey) | number : (getColumnFormat(column.type) || '1.4-4')) : '-' }}
-                                                            } @else if (column.type == 'money') {
-                                                                {{ column.valueKey && (getNestedValue(element, column.valueKey)) | tisCurrency : getColumnFormat(column.type) }}
-                                                            } @else {
-                                                                {{ column.valueKey && getNestedValue(element, column.valueKey) }}
-                                                            }
-                                                        </a>
-                                                    } @else {
-                                                        <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
-                                                            @if (column.type == 'quantity') {
-                                                                {{ column.valueKey ? (getNestedValue(element, column.valueKey) | number : (getColumnFormat(column.type) || '1.4-4')) : '-' }}
-                                                            } @else if (column.type == 'money') {
-                                                                {{ column.valueKey && (getNestedValue(element, column.valueKey)) | tisCurrency : getColumnFormat(column.type) }}
-                                                            } @else {
-                                                                {{ column.valueKey && getNestedValue(element, column.valueKey) }}
-                                                            }
-                                                        </p>
-                                                    }
-                                                </td>
-                                            }
-                                        </ng-container>
-
-                                    }
-
-
-                                    @for(column of templateRenderColumns; track trackByTemplateColumn($index, column); let i = $index; let l = $last){
-                                        <!-- [sticky]="i < startStickyColumnCount" [stickyEnd]="l" -->
-                                        <ng-container [matColumnDef]="column?.columnDef || column.name"  [sticky]="isStickyStart(column?.columnDef || column.name)" [stickyEnd]="isStickyEnd(column?.columnDef || column.name)">
-                                            @if(column.type == 'expand') {
-                                                <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
-                                                    <div style="display: flex; align-items: center; gap: 5px; cursor: pointer;" (click)="expandAllRow()">
-                                                        <span>{{ column?.columnName ? column?.columnName : t[column.name] }}</span>
-                                                        <mat-icon *ngIf="!isAllExpanded">expand_more</mat-icon>
-                                                        <mat-icon *ngIf="isAllExpanded">expand_less</mat-icon>
-                                                    </div>
-                                                </th>
-                                            }
-                                            @else if(column.sort) {
-                                                <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="getColumnClasses(column)">
-                                                    {{ column?.columnName ? column?.columnName : t[column.name] }}
-                                                </th>
-                                            }
-                                            @else {
-                                                <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
-                                                    {{ column?.columnName ? column?.columnName : t[column.name] }}
-                                                </th>
-                                            }
-                                            <td mat-cell *matCellDef="let element" class="4al-{{column.align}} 4ty-{{column.type}}" [ngClass]="getColumnClasses(column)">
-                                                <ng-container *ngIf="column.template as template">
-                                                    <ng-container *ngTemplateOutlet="template; context: { colDef: column, colData: element  }"></ng-container>
-                                                </ng-container>
-                                            </td>
-                                        </ng-container>
-                                    }
-
-                                    <!--Drag Column Def Start-->
-                                    <ng-container [matColumnDef]="'drag'" >
-                                        <th mat-header-cell *matHeaderCellDef>
-                                            --
-                                        </th>
-                                        <td mat-cell *matCellDef="let element" class="5al-drag 5ty-drag">
-                                            <mat-icon cdkDragHandle class="tis-curser-pointer" style="color: rgba(0, 0, 0, 0.54); font-size: 19px; width: 19px; height: 19px;">drag_indicator</mat-icon>
-                                        </td>
-                                    </ng-container>
-                                    <!--Drag Column Def End-->
-
-                                    <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
-                                    <ng-container matColumnDef="expandedDetail">
-                                        <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length" [style.border-bottom-width]="isRowExpanded(element) ? '1px' : '0px'" style="padding: 0px !important;">
-                                            <div class="tis-element-detail-wrapper" [class.tis-element-detail-wrapper-expanded]="isRowExpanded(element)">
-                                                <ng-container *ngIf="expandedTemplate as template">
-                                                    <ng-container *ngTemplateOutlet="template; context: { colData: element }"></ng-container>
-                                                </ng-container>
-                                            </div>
-                                        </td>
-                                    </ng-container>
-
-
-                                    <tr class="mat-row" *matNoDataRow>
-                                        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
-                                            <div class="tis-data-not-found">
-                                                @if(dataNotFoundConfig.iconUrl) {
-                                                    <img [src]="dataNotFoundConfig.iconUrl" alt="No data found" />
+                                                @if(column.type == 'date'){
+                                                    <td mat-cell *matCellDef="let element"  class="1al-{{column.align}} 1ty-{{column.type}}" >
+                                                        @if(column.linkFn) {
+                                                            <a [routerLink]="column.linkFn(element)" class="tis-a">
+                                                                {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDate : getColumnFormat(column.type)) : ''}}
+                                                            </a>
+                                                        } @else {
+                                                            <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
+                                                                {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDate : getColumnFormat(column.type)) : ''}}
+                                                            </p>
+                                                        }
+                                                    </td>
+                                                } @else if(column.type == 'date-time'){
+                                                    <td mat-cell *matCellDef="let element" class="2al-{{column.align}} 2ty-{{column.type}}">
+                                                        @if(column.linkFn) {
+                                                            <a [routerLink]="column.linkFn(element)" class="tis-a">
+                                                                {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDateTime : getColumnFormat(column.type)) : ''}}
+                                                            </a>
+                                                        } @else {
+                                                            <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
+                                                                {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDateTime : getColumnFormat(column.type)) : ''}}
+                                                            </p>
+                                                        }
+                                                    </td>
+                                                } @else if(column.type == 'date-time-with-seconds'){
+                                                    <td mat-cell *matCellDef="let element" class="2al-{{column.align}} 2ty-{{column.type}}">
+                                                        @if(column.linkFn) {
+                                                            <a [routerLink]="column.linkFn(element)" class="tis-a">
+                                                                {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDateTimeWithSeconds : getColumnFormat(column.type)) : ''}}
+                                                            </a>
+                                                        } @else {
+                                                            <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
+                                                                {{ column.valueKey ? (getNestedValue(element, column.valueKey) | tisDateTimeWithSeconds : getColumnFormat(column.type)) : ''}}
+                                                            </p>
+                                                        }
+                                                    </td>
                                                 } @else {
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="130" height="126.89" viewBox="0 0 647.63626 632.17383" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" artist="Katerina Limpitsouni" source="https://undraw.co/">
-                                                        <path d="M687.3279,276.08691H512.81813a15.01828,15.01828,0,0,0-15,15v387.85l-2,.61005-42.81006,13.11a8.00676,8.00676,0,0,1-9.98974-5.31L315.678,271.39691a8.00313,8.00313,0,0,1,5.31006-9.99l65.97022-20.2,191.25-58.54,65.96972-20.2a7.98927,7.98927,0,0,1,9.99024,5.3l32.5498,106.32Z" transform="translate(-276.18187 -133.91309)" fill="#f2f2f2"/>
-                                                        <path d="M725.408,274.08691l-39.23-128.14a16.99368,16.99368,0,0,0-21.23-11.28l-92.75,28.39L380.95827,221.60693l-92.75,28.4a17.0152,17.0152,0,0,0-11.28028,21.23l134.08008,437.93a17.02661,17.02661,0,0,0,16.26026,12.03,16.78926,16.78926,0,0,0,4.96972-.75l63.58008-19.46,2-.62v-2.09l-2,.61-64.16992,19.65a15.01489,15.01489,0,0,1-18.73-9.95l-134.06983-437.94a14.97935,14.97935,0,0,1,9.94971-18.73l92.75-28.4,191.24024-58.54,92.75-28.4a15.15551,15.15551,0,0,1,4.40966-.66,15.01461,15.01461,0,0,1,14.32032,10.61l39.0498,127.56.62012,2h2.08008Z" transform="translate(-276.18187 -133.91309)" fill="#3f3d56"/>
-                                                        <path d="M398.86279,261.73389a9.0157,9.0157,0,0,1-8.61133-6.3667l-12.88037-42.07178a8.99884,8.99884,0,0,1,5.9712-11.24023l175.939-53.86377a9.00867,9.00867,0,0,1,11.24072,5.9707l12.88037,42.07227a9.01029,9.01029,0,0,1-5.9707,11.24072L401.49219,261.33887A8.976,8.976,0,0,1,398.86279,261.73389Z" transform="translate(-276.18187 -133.91309)" fill="var(--tis-primary, var(--mat-sys-primary, #3838a2))"/>
-                                                        <circle cx="190.15351" cy="24.95465" r="20" fill="var(--tis-primary, var(--mat-sys-primary, #3838a2))"/>
-                                                        <circle cx="190.15351" cy="24.95465" r="12.66462" fill="#fff"/>
-                                                        <path d="M878.81836,716.08691h-338a8.50981,8.50981,0,0,1-8.5-8.5v-405a8.50951,8.50951,0,0,1,8.5-8.5h338a8.50982,8.50982,0,0,1,8.5,8.5v405A8.51013,8.51013,0,0,1,878.81836,716.08691Z" transform="translate(-276.18187 -133.91309)" fill="#e6e6e6"/>
-                                                        <path d="M723.31813,274.08691h-210.5a17.02411,17.02411,0,0,0-17,17v407.8l2-.61v-407.19a15.01828,15.01828,0,0,1,15-15H723.93825Zm183.5,0h-394a17.02411,17.02411,0,0,0-17,17v458a17.0241,17.0241,0,0,0,17,17h394a17.0241,17.0241,0,0,0,17-17v-458A17.02411,17.02411,0,0,0,906.81813,274.08691Zm15,475a15.01828,15.01828,0,0,1-15,15h-394a15.01828,15.01828,0,0,1-15-15v-458a15.01828,15.01828,0,0,1,15-15h394a15.01828,15.01828,0,0,1,15,15Z" transform="translate(-276.18187 -133.91309)" fill="#3f3d56"/>
-                                                        <path d="M801.81836,318.08691h-184a9.01015,9.01015,0,0,1-9-9v-44a9.01016,9.01016,0,0,1,9-9h184a9.01016,9.01016,0,0,1,9,9v44A9.01015,9.01015,0,0,1,801.81836,318.08691Z" transform="translate(-276.18187 -133.91309)" fill="var(--tis-primary, var(--mat-sys-primary, #3838a2))"/>
-                                                        <circle cx="433.63626" cy="105.17383" r="20" fill="var(--tis-primary, var(--mat-sys-primary, #3838a2))"/>
-                                                        <circle cx="433.63626" cy="105.17383" r="12.18187" fill="#fff"/>
-                                                    </svg>
+                                                    <td mat-cell *matCellDef="let element" class="3al-{{column.align}} 3ty-{{column.type}}" [ngClass]="getColumnClasses(column)">
+                                                        @if(column.linkFn) {
+                                                            <a [routerLink]="column.linkFn(element)" class="tis-a">
+                                                                @if (column.type == 'quantity') {
+                                                                    {{ column.valueKey ? (getNestedValue(element, column.valueKey) | number : (getColumnFormat(column.type) || '1.4-4')) : '-' }}
+                                                                } @else if (column.type == 'money') {
+                                                                    {{ column.valueKey && (getNestedValue(element, column.valueKey)) | tisCurrency : getColumnFormat(column.type) }}
+                                                                } @else {
+                                                                    {{ column.valueKey && getNestedValue(element, column.valueKey) }}
+                                                                }
+                                                            </a>
+                                                        } @else {
+                                                            <p [class.tis-a]="column.clickFn" (click)="column?.clickFn?.(element, $event)">
+                                                                @if (column.type == 'quantity') {
+                                                                    {{ column.valueKey ? (getNestedValue(element, column.valueKey) | number : (getColumnFormat(column.type) || '1.4-4')) : '-' }}
+                                                                } @else if (column.type == 'money') {
+                                                                    {{ column.valueKey && (getNestedValue(element, column.valueKey)) | tisCurrency : getColumnFormat(column.type) }}
+                                                                } @else {
+                                                                    {{ column.valueKey && getNestedValue(element, column.valueKey) }}
+                                                                }
+                                                            </p>
+                                                        }
+                                                    </td>
                                                 }
-                                                <h5 class="tis-h5">{{dataNotFoundConfig.title}}</h5>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                            </ng-container>
 
-                                        <!-- Apply Drag and Drop to tbody -->
-                                    @if(enableDragNDrop) {
-                                        <tr mat-row *matRowDef="let row; columns: displayedColumns" [ngStyle]="{'background-color': getRowBackground(row) || 'inherit'}" [class.tis-curser-pointer]="isExpandedRow" (click)="(isExpansion && isExpandedRow) ? toggleExpand(row) : null" cdkDrag></tr>
+                                        }
+
+
+                                        @for(column of templateRenderColumns; track trackByTemplateColumn($index, column); let i = $index; let l = $last){
+                                            <!-- [sticky]="i < startStickyColumnCount" [stickyEnd]="l" -->
+                                            <ng-container [matColumnDef]="column?.columnDef || column.name"  [sticky]="isStickyStart(column?.columnDef || column.name)" [stickyEnd]="isStickyEnd(column?.columnDef || column.name)">
+                                                @if(column.type == 'expand') {
+                                                    <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
+                                                        <div style="display: flex; align-items: center; gap: 5px; cursor: pointer;" (click)="expandAllRow()">
+                                                            <span>{{ column?.columnName ? column?.columnName : t[column.name] }}</span>
+                                                            <mat-icon *ngIf="!isAllExpanded">expand_more</mat-icon>
+                                                            <mat-icon *ngIf="isAllExpanded">expand_less</mat-icon>
+                                                        </div>
+                                                    </th>
+                                                }
+                                                @else if(column.sort) {
+                                                    <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="getColumnClasses(column)">
+                                                        {{ column?.columnName ? column?.columnName : t[column.name] }}
+                                                    </th>
+                                                }
+                                                @else {
+                                                    <th mat-header-cell *matHeaderCellDef [ngClass]="getColumnClasses(column)">
+                                                        {{ column?.columnName ? column?.columnName : t[column.name] }}
+                                                    </th>
+                                                }
+                                                <td mat-cell *matCellDef="let element" class="4al-{{column.align}} 4ty-{{column.type}}" [ngClass]="getColumnClasses(column)">
+                                                    <ng-container *ngIf="column.template as template">
+                                                        <ng-container *ngTemplateOutlet="template; context: { colDef: column, colData: element  }"></ng-container>
+                                                    </ng-container>
+                                                </td>
+                                            </ng-container>
+                                        }
+
+                                        <!--Drag Column Def Start-->
+                                        <ng-container [matColumnDef]="'drag'" >
+                                            <th mat-header-cell *matHeaderCellDef>
+                                                --
+                                            </th>
+                                            <td mat-cell *matCellDef="let element" class="5al-drag 5ty-drag">
+                                                <mat-icon cdkDragHandle class="tis-curser-pointer" style="color: rgba(0, 0, 0, 0.54); font-size: 19px; width: 19px; height: 19px;">drag_indicator</mat-icon>
+                                            </td>
+                                        </ng-container>
+                                        <!--Drag Column Def End-->
+
+                                        <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+                                        <ng-container matColumnDef="expandedDetail">
+                                            <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length" [style.border-bottom-width]="isRowExpanded(element) ? '1px' : '0px'" style="padding: 0px !important;">
+                                                <div class="tis-element-detail-wrapper" [class.tis-element-detail-wrapper-expanded]="isRowExpanded(element)">
+                                                    <ng-container *ngIf="expandedTemplate as template">
+                                                        <ng-container *ngTemplateOutlet="template; context: { colData: element }"></ng-container>
+                                                    </ng-container>
+                                                </div>
+                                            </td>
+                                        </ng-container>
+
+
+                                        <tr class="mat-row" *matNoDataRow>
+                                            <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+                                                <div class="tis-data-not-found">
+                                                    @if(dataNotFoundConfig.iconUrl) {
+                                                        <img [src]="dataNotFoundConfig.iconUrl" alt="No data found" />
+                                                    } @else {
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="130" height="126.89" viewBox="0 0 647.63626 632.17383" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" artist="Katerina Limpitsouni" source="https://undraw.co/">
+                                                            <path d="M687.3279,276.08691H512.81813a15.01828,15.01828,0,0,0-15,15v387.85l-2,.61005-42.81006,13.11a8.00676,8.00676,0,0,1-9.98974-5.31L315.678,271.39691a8.00313,8.00313,0,0,1,5.31006-9.99l65.97022-20.2,191.25-58.54,65.96972-20.2a7.98927,7.98927,0,0,1,9.99024,5.3l32.5498,106.32Z" transform="translate(-276.18187 -133.91309)" fill="#f2f2f2"/>
+                                                            <path d="M725.408,274.08691l-39.23-128.14a16.99368,16.99368,0,0,0-21.23-11.28l-92.75,28.39L380.95827,221.60693l-92.75,28.4a17.0152,17.0152,0,0,0-11.28028,21.23l134.08008,437.93a17.02661,17.02661,0,0,0,16.26026,12.03,16.78926,16.78926,0,0,0,4.96972-.75l63.58008-19.46,2-.62v-2.09l-2,.61-64.16992,19.65a15.01489,15.01489,0,0,1-18.73-9.95l-134.06983-437.94a14.97935,14.97935,0,0,1,9.94971-18.73l92.75-28.4,191.24024-58.54,92.75-28.4a15.15551,15.15551,0,0,1,4.40966-.66,15.01461,15.01461,0,0,1,14.32032,10.61l39.0498,127.56.62012,2h2.08008Z" transform="translate(-276.18187 -133.91309)" fill="#3f3d56"/>
+                                                            <path d="M398.86279,261.73389a9.0157,9.0157,0,0,1-8.61133-6.3667l-12.88037-42.07178a8.99884,8.99884,0,0,1,5.9712-11.24023l175.939-53.86377a9.00867,9.00867,0,0,1,11.24072,5.9707l12.88037,42.07227a9.01029,9.01029,0,0,1-5.9707,11.24072L401.49219,261.33887A8.976,8.976,0,0,1,398.86279,261.73389Z" transform="translate(-276.18187 -133.91309)" fill="var(--tis-primary, var(--mat-sys-primary, #3838a2))"/>
+                                                            <circle cx="190.15351" cy="24.95465" r="20" fill="var(--tis-primary, var(--mat-sys-primary, #3838a2))"/>
+                                                            <circle cx="190.15351" cy="24.95465" r="12.66462" fill="#fff"/>
+                                                            <path d="M878.81836,716.08691h-338a8.50981,8.50981,0,0,1-8.5-8.5v-405a8.50951,8.50951,0,0,1,8.5-8.5h338a8.50982,8.50982,0,0,1,8.5,8.5v405A8.51013,8.51013,0,0,1,878.81836,716.08691Z" transform="translate(-276.18187 -133.91309)" fill="#e6e6e6"/>
+                                                            <path d="M723.31813,274.08691h-210.5a17.02411,17.02411,0,0,0-17,17v407.8l2-.61v-407.19a15.01828,15.01828,0,0,1,15-15H723.93825Zm183.5,0h-394a17.02411,17.02411,0,0,0-17,17v458a17.0241,17.0241,0,0,0,17,17h394a17.0241,17.0241,0,0,0,17-17v-458A17.02411,17.02411,0,0,0,906.81813,274.08691Zm15,475a15.01828,15.01828,0,0,1-15,15h-394a15.01828,15.01828,0,0,1-15-15v-458a15.01828,15.01828,0,0,1,15-15h394a15.01828,15.01828,0,0,1,15,15Z" transform="translate(-276.18187 -133.91309)" fill="#3f3d56"/>
+                                                            <path d="M801.81836,318.08691h-184a9.01015,9.01015,0,0,1-9-9v-44a9.01016,9.01016,0,0,1,9-9h184a9.01016,9.01016,0,0,1,9,9v44A9.01015,9.01015,0,0,1,801.81836,318.08691Z" transform="translate(-276.18187 -133.91309)" fill="var(--tis-primary, var(--mat-sys-primary, #3838a2))"/>
+                                                            <circle cx="433.63626" cy="105.17383" r="20" fill="var(--tis-primary, var(--mat-sys-primary, #3838a2))"/>
+                                                            <circle cx="433.63626" cy="105.17383" r="12.18187" fill="#fff"/>
+                                                        </svg>
+                                                    }
+                                                    <h5 class="tis-h5">{{dataNotFoundConfig.title}}</h5>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                            <!-- Apply Drag and Drop to tbody -->
+                                        @if(enableDragNDrop) {
+                                            <tr mat-row *matRowDef="let row; columns: displayedColumns" [ngStyle]="{'background-color': getRowBackground(row) || 'inherit'}" [class.tis-curser-pointer]="isExpandedRow" (click)="(isExpansion && isExpandedRow) ? toggleExpand(row) : null" cdkDrag></tr>
+                                        }
+
+                                        @if(!enableDragNDrop) {
+                                            <tr mat-row *matRowDef="let row; columns: displayedColumns" [ngStyle]="{'background-color': getRowBackground(row) || 'inherit'}" [class.tis-curser-pointer]="isExpandedRow" (click)="(isExpansion && isExpandedRow) ? toggleExpand(row) : null"></tr>
+                                        }   
+                                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                                        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="tis-detail-row"></tr>
+                                    </table>
+                                    <!--Table End-->
+                                }
+                                @else {
+                                    <!-- Mobile Card View -->
+                                    @if (dataSource?.apiSubject | async; as rows) {
+                                        <table class="tis-table tis-mobile-responsive-table" [class.tis-table-bordered]="disableBorderedView == false">
+                                            <tbody>
+                                                @for (element of rows; track trackByTableRow($index, element)) {
+                                                    <tr [ngStyle]="{'background-color': getRowBackground(element) || 'inherit'}" [class.tis-curser-pointer]="isExpandedRowForMobileResponsive" (click)="(isExpansionForMobileResponsive && isExpandedRowForMobileResponsive) ? toggleExpandForMobileResponsive(element) : null">
+                                                        <td>
+                                                            <div class="tis-table-responsive-table-wrapper">
+                                                                <div class="tis-table-responsive-table-header-wrapper">
+                                                                    @if (enableRowsSelection) {
+                                                                        <div class="tis-table-responsive-table-header-wrapper-item">
+                                                                            <mat-checkbox color="primary" (click)="stopPropagation($event)" (change)="$event ? toggleSelection($event, element) : null" [checked]="isChecked(element) || hasSelectedAllRows"></mat-checkbox>
+                                                                        </div>
+                                                                    }
+                                                                    <div class="tis-table-responsive-table-header-wrapper-item" style="flex: 1 1 0%;">
+                                                                        <ng-container *ngIf="headerTemplateForEachRowForMobileResponsive as template">
+                                                                            <ng-container *ngTemplateOutlet="template; context: { colData: element }"></ng-container>
+                                                                        </ng-container>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="tis-table-responsive-table-content-wrapper" [class.tis-table-responsive-table-content-wrapper-expanded]="isRowExpandedForMobileResponsive(element)">
+                                                                    <ng-container *ngIf="expandedTemplateForMobileResponsive as template">
+                                                                        <ng-container *ngTemplateOutlet="template; context: { colData: element }"></ng-container>
+                                                                    </ng-container>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
                                     }
-
-                                    @if(!enableDragNDrop) {
-                                        <tr mat-row *matRowDef="let row; columns: displayedColumns" [ngStyle]="{'background-color': getRowBackground(row) || 'inherit'}" [class.tis-curser-pointer]="isExpandedRow" (click)="(isExpansion && isExpandedRow) ? toggleExpand(row) : null"></tr>
-                                    }   
-                                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                                    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="tis-detail-row"></tr>
-                                </table>
-                                <!--Table End-->
+                                }
 
                             </div>
                             @if(loaderPosition == 'bottom'){

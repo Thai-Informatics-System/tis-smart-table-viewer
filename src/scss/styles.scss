@@ -1438,6 +1438,24 @@ body {
   }
 }
 
+.tis-mobile-responsive-table {
+  thead {
+    tr {
+      th {
+        padding: 0px !important;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      td {
+        padding: 0px !important;
+      }
+    }
+  }
+}
+
 .tis-table-bordered {
   .bg-unset {
     background-color: unset !important;

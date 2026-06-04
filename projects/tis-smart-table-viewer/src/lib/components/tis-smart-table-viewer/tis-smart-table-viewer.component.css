@@ -77,6 +77,24 @@
     background-color: unset !important;
 }
 
+.tis-table-responsive-table-wrapper{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.tis-table-responsive-table-header-wrapper{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.tis-table-responsive-table-content-wrapper{
+    width: 100%;
+}
+
 /* Ensure sticky border elements match table border */
 /* .mat-mdc-table-sticky-border-elem-right,
 .mat-mdc-table-sticky-border-elem-left {

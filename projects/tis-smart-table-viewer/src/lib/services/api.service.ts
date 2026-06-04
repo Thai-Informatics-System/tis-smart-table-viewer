@@ -18,7 +18,8 @@ export class ApiService {
         if(this.token) {
             return this.http.post(`${apiUrl}?current_page=${currentPage}&per_page=${limit}&search=${encodedSearch}`, body, {
                 headers: {
-                    'Authorization': `Bearer ${this.token}`
+                    'Authorization': `Bearer ${this.token}`,
+                    'X-Brand-Id': '2'
                 }
             });
         }
