@@ -6,6 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TisHelperService } from '../../services/tis-helper.service';
 import { UserCustomizationService } from '../../services/user-customization.service';
 import type { ColumnCustomizationUrlConfig } from '../../interfaces/url-config.type';
+import { ClassPrefixHelper } from '../../helpers/class-prefix.helper';
 
 @Component({
     selector: 'tis-create-columns-template',
@@ -26,6 +27,7 @@ export class CreateColumnsTemplateComponent {
   translationReadKey!: string
   customColumns: any;
   t: any;
+  classPrefix = ClassPrefixHelper.DEFAULT_PREFIX;
   columnCustomizationUrlConfig!: ColumnCustomizationUrlConfig;
 
   constructor(
@@ -37,6 +39,7 @@ export class CreateColumnsTemplateComponent {
     // private translocoService: TranslocoService,
   ) {
     this.translationReadKey = this.data?.translationReadKey ?? '';
+    this.classPrefix = this.data?.classPrefix ?? ClassPrefixHelper.DEFAULT_PREFIX;
     
     if(this.data?.customColumns){
       this.customColumns = this.data?.customColumns ?? {};
@@ -46,7 +49,11 @@ export class CreateColumnsTemplateComponent {
       this.columnCustomizationUrlConfig = this.data.columnCustomizationUrlConfig;
     }
     
-    this.dialogRef.addPanelClass(['tis-create-columns-template']);
+    this.dialogRef.addPanelClass([this.cx('create-columns-template')]);
+  }
+
+  cx(name: string): string {
+    return ClassPrefixHelper.cx(this.classPrefix, name);
   }
 
   ngOnInit(): void {
@@ -156,7 +163,7 @@ export class CreateColumnsTemplateComponent {
       }, err => {
         this.loading = false;
         this.savingTemplate = false;
-        this.helper.showHttpErrorMsg(err);
+        this.helper.showHttpErrorMsg(err, 5000, this.classPrefix);
       })
     }
     else{
@@ -173,7 +180,7 @@ export class CreateColumnsTemplateComponent {
         console.log(err);
         this.loading = false;
         this.savingTemplate = false;
-        this.helper.showHttpErrorMsg(err);
+        this.helper.showHttpErrorMsg(err, 5000, this.classPrefix);
       })
     }
   }

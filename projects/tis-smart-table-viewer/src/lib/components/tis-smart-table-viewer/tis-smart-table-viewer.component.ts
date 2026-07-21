@@ -25,6 +25,7 @@ import { UrlHelper } from '../../helpers/url.helper';
 import { Location } from '@angular/common';
 import type { DataNotFoundConfig } from '../../interfaces/data-not-found-config.type';
 import type { ColumnCustomizationUrlConfig } from '../../interfaces/url-config.type';
+import { ClassPrefixHelper } from '../../helpers/class-prefix.helper';
 
 @Component({
   selector: 'tis-smart-table-viewer',
@@ -35,6 +36,9 @@ import type { ColumnCustomizationUrlConfig } from '../../interfaces/url-config.t
 })
 export class TisSmartTableViewerComponent implements OnDestroy {
   homeUrl = '';
+
+  /** Design-system CSS class prefix. Default `tis-` → classes like `tis-table`. */
+  @Input() classPrefix = ClassPrefixHelper.DEFAULT_PREFIX;
 
   @Input({ required: true }) columnCustomizationUrlConfig!: ColumnCustomizationUrlConfig;
   @Input({ required: true }) t: any = {};
@@ -516,6 +520,16 @@ export class TisSmartTableViewerComponent implements OnDestroy {
     } else {
       this.defaultColumns = this.columnsCodeMapping.map(c => c.name);
     }
+  }
+
+  /** Builds a host-styled CSS class from {@link classPrefix}, e.g. `cx('table')` → `tis-table`. */
+  cx(name: string): string {
+    return ClassPrefixHelper.cx(this.classPrefix, name);
+  }
+
+  /** Joins multiple prefixed class names; falsy names are skipped. */
+  cxMany(...names: (string | null | undefined | false)[]): string {
+    return ClassPrefixHelper.cxMany(this.classPrefix, ...names);
   }
 
 

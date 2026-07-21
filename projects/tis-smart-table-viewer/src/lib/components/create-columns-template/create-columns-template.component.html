@@ -5,7 +5,7 @@
         <mat-icon (click)="onClose()" style="cursor: pointer;">clear</mat-icon>
     </h1>
     <div style="padding: 15px; padding-bottom: 0px;">
-        <mat-form-field class="width-100 tis-mat-form-field" appearance="outline">
+        <mat-form-field [class]="'width-100 ' + cx('mat-form-field')" appearance="outline">
             <mat-label>{{t?.createColumnsTemplate?.templateName}}</mat-label>
             <input matInput formControlName="name" placeholder="{{t?.createColumnsTemplate?.enterTemplateName}}" />
         </mat-form-field>
@@ -29,7 +29,7 @@
     @if(form.value?.enableStickiness){
         <div style="padding: 15px; padding-bottom: 0px;">
             <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem;">
-                <mat-form-field class="width-100 tis-mat-form-field" appearance="outline">
+                <mat-form-field [class]="'width-100 ' + cx('mat-form-field')" appearance="outline">
                     <mat-label>{{t?.createColumnsTemplate?.freezeColumnFromLeft}}</mat-label>
                     <mat-select formControlName="fromStartColumnNumber">
                         <mat-option [value]="0">None</mat-option>
@@ -43,7 +43,7 @@
                         }
                     </mat-select>
                 </mat-form-field>
-                <mat-form-field class="width-100 tis-mat-form-field" appearance="outline">
+                <mat-form-field [class]="'width-100 ' + cx('mat-form-field')" appearance="outline">
                     <mat-label>{{t?.createColumnsTemplate?.freezeColumnFromRight}}</mat-label>
                     <mat-select formControlName="fromEndColumnNumber">
                         <mat-option [value]="0">None</mat-option>
@@ -62,8 +62,8 @@
     }
 
     <div mat-dialog-actions>
-        <button mat-button type="button" class="tis-cancel-button" mat-dialog-close [disabled]="loading">{{t?.createColumnsTemplate?.cancel}}</button>
-        <button mat-flat-button type="submit" class="tis-submit-button" cdkFocusInitial [disabled]="savingTemplate">
+        <button mat-button type="button" class="stv-cancel-button" mat-dialog-close [disabled]="loading">{{t?.createColumnsTemplate?.cancel}}</button>
+        <button mat-flat-button type="submit" class="stv-submit-button" cdkFocusInitial [disabled]="savingTemplate">
             {{data?.selectedTemplateId ? t?.createColumnsTemplate?.update : t?.createColumnsTemplate?.save}}
             @if(savingTemplate){
                 <i class="fas fa-spinner fa-spin"></i>
