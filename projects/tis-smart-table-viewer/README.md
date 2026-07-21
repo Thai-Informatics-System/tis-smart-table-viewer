@@ -14,7 +14,6 @@
 - Custom row background styling
 - Built-in pagination and sorting
 - Dynamic slot and template injection for full control
-- Configurable CSS class prefix (`classPrefix`, default `tis-`)
 
 ---
 
@@ -246,33 +245,6 @@ export type DataNotFoundConfig = {
 ## 📦 Module Setup
 
 Make sure to import `TisSmartTableViewerModule` and necessary Angular Material modules in your app module or standalone components.
-
----
-
-## CSS class prefix (`classPrefix`)
-
-The library emits design-system CSS classes with a configurable prefix.
-
-| Input | Default | Example result |
-|---|---|---|
-| `classPrefix` | `'tis-'` | `cx('table')` → `tis-table` |
-
-```html
-<!-- default: classes like tis-table, tis-page, tis-breadcrumb -->
-<tis-smart-table-viewer ...></tis-smart-table-viewer>
-
-<!-- custom namespace: classes like app-table, app-page -->
-<tis-smart-table-viewer classPrefix="app-" ...></tis-smart-table-viewer>
-```
-
-### Host stylesheet contract
-
-Most layout/visual styles (page shell, table chrome, breadcrumbs, utilities, dialogs) live in the **host application** stylesheet (e.g. your design-system `styles.scss`), not inside this library.
-
-- With the default `tis-`, keep your existing `.tis-*` rules.
-- If you change `classPrefix`, you must provide matching global rules for that prefix (e.g. rename/duplicate `.tis-table` → `.app-table`), or the UI will look unstyled.
-- CSS custom properties such as `--tis-primary` are **not** renamed by `classPrefix`.
-- Library-internal encapsulated styles use stable `stv-*` class names and do not depend on `classPrefix`.
 
 ---
 

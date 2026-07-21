@@ -5,7 +5,6 @@ import { TisHelperService } from '../../services/tis-helper.service';
 import { TisSmartTableConfirmationDialogComponent } from '../tis-smart-table-confirmation-dialog/tis-smart-table-confirmation-dialog.component';
 import { CreateColumnsTemplateComponent } from '../create-columns-template/create-columns-template.component';
 import type { ColumnCustomizationUrlConfig } from '../../interfaces/url-config.type';
-import { ClassPrefixHelper } from '../../helpers/class-prefix.helper';
 
 @Component({
     selector: 'tis-columns-btn',
@@ -16,7 +15,6 @@ import { ClassPrefixHelper } from '../../helpers/class-prefix.helper';
 export class TisColumnsBtnComponent {
   static readonly COMPONENT_NAME = 'TisColumnsBtnComponent';
 
-  @Input() classPrefix = ClassPrefixHelper.DEFAULT_PREFIX;
   @Input({ required: true }) columnCustomizationUrlConfig!: ColumnCustomizationUrlConfig;
   @Input() t: any = {};
   @Input({required: true}) componentName!: string;
@@ -53,10 +51,6 @@ export class TisColumnsBtnComponent {
     // }, 2000);
   }
 
-  cx(name: string): string {
-    return ClassPrefixHelper.cx(this.classPrefix, name);
-  }
-
   public createNewTemplateDialog(stData: any = null) {
     if(!this.componentName) return;
 
@@ -74,15 +68,14 @@ export class TisColumnsBtnComponent {
       t: this.t,
       skipTranslation: this.skipTranslation,
       customColumns: this.customColumns,
-      columnCustomizationUrlConfig: this.columnCustomizationUrlConfig,
-      classPrefix: this.classPrefix,
+      columnCustomizationUrlConfig: this.columnCustomizationUrlConfig
     };
 
     const dialogRef = this.dialog.open(CreateColumnsTemplateComponent, {
       width: "35%",
       minWidth: '370px',
       data: data,
-      panelClass: [this.cx('create-new-columns-template')],
+      panelClass: ['tis-create-new-columns-template'],
       disableClose: true,
     });
 
@@ -139,19 +132,18 @@ export class TisColumnsBtnComponent {
         let confirmBoxData: any = {
           title: this.t?.deleteColumnsTemplate?.title,
           message: this.t?.deleteColumnsTemplate?.message,
-          iconClass: this.cx('text-danger'),
+          iconClass: "tis-text-danger",
           icon: "delete",
           approveButtonText: this.t?.deleteColumnsTemplate?.yes,
-          approveButtonClass: this.cx('btn-danger'),
+          approveButtonClass: "tis-btn-danger",
           cancelButtonText: this.t?.deleteColumnsTemplate?.no,
-          cancelButtonClass: this.cx('btn-primary'),
-          classPrefix: this.classPrefix,
+          cancelButtonClass: "tis-btn-primary"
         };
     
         const dialogRef = this.dialog.open(TisSmartTableConfirmationDialogComponent, {
           width: "30%",
           minWidth: '370px',
-          // panelClass: [this.cx('simple-confirmation')],
+          // panelClass: ['tis-simple-confirmation'],
           data: confirmBoxData,
           disableClose: true,
         });
@@ -172,7 +164,7 @@ export class TisColumnsBtnComponent {
                 this.selectedTemplateChange.emit(this.selectedTemplate);
                 this.changeDisplayColumns();
               }
-            }, err => this.helper.showHttpErrorMsg(err, 5000, this.classPrefix));
+            }, err => this.helper.showHttpErrorMsg(err));
           }
         });
       }

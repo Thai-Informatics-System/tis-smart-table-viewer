@@ -116,16 +116,16 @@
     padding-left: 5px;
 }
 
-.stv-cancel-button:not(:disabled) {
+.tis-cancel-button:not(:disabled) {
     text-transform: uppercase !important;
     color: var(--tis-primary, var(--mat-sys-primary, #3838a2)) !important;
 }
 
-.stv-cancel-button:not(:disabled):hover .mat-mdc-button-persistent-ripple::before {
+.tis-cancel-button:not(:disabled):hover .mat-mdc-button-persistent-ripple::before {
     background-color: var(--tis-primary, var(--mat-sys-primary, #3838a2));
 }
 
-.stv-submit-button:not(:disabled) {
+.tis-submit-button:not(:disabled) {
     text-transform: uppercase !important;
     color: white !important;
     background-color: var(--tis-primary, var(--mat-sys-primary, #3838a2)) !important;

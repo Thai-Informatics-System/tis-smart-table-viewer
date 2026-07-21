@@ -5,7 +5,6 @@
             <tis-smart-table-viewer #mainTableWrapper [columnCustomizationUrlConfig]="columnCustomizationUrlConfig" [t]="getLanguageJson" componentName="cm-service-request" [mainTitle]="t('list')"
                 [breadcrumbs]="[{url: '/admin/service-management/cases', name: t('breadcrumb')}]"
                 [columnsCodeMapping]="columnsCodeMapping" [searchPlaceholder]="t('searchPlaceholder')"
-                classPrefix="tis-"
                 [loadDataApiBaseUrl]="loadDataApiBaseUrl" [(pageSize)]="pageSize" [(pageIndex)]="pageIndex" [hideHeader]="true"
                 [rowsConfig]="rowsConfig" [filterFormGroup]="filterFormGroup" [keepFilterInUrl]="true" [dataNotFoundConfig]="{
                     title: t('noDataFound'),

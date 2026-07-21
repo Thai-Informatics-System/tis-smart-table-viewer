@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { TisSmartTableErrorDialogComponent } from '../components/tis-smart-table-error-dialog/tis-smart-table-error-dialog.component';
-import { ClassPrefixHelper } from '../helpers/class-prefix.helper';
 import { Observable } from 'rxjs';
 
 
@@ -18,13 +17,12 @@ export class TisHelperService {
     private http: HttpClient
   ) { }
 
-  showHttpErrorMsg(error: HttpErrorResponse, duration = 5000, classPrefix = ClassPrefixHelper.DEFAULT_PREFIX) {
+  showHttpErrorMsg(error: HttpErrorResponse, duration = 5000) {
     console.log('httpError: ', error);
 
     let errorMessage = 'Some Unknown Error Occurred.';
     let errorCode = 'Unknown Error';
     const httpError = error;
-    const cx = (name: string) => ClassPrefixHelper.cx(classPrefix, name);
 
     if (httpError.status >= 400) {
       const errorFromServer = httpError.error;
@@ -42,15 +40,14 @@ export class TisHelperService {
         title: "Error !",
         message: errorMessage,
         icon: "error",
-        iconClass: cx('text-danger'),
+        iconClass: "tis-text-danger",
         buttonText: "Ok",
-        buttonClass: cx('btn-primary'),
-        classPrefix,
+        buttonClass: "tis-btn-primary",
       };
 
       const dialogRef: MatDialogRef<TisSmartTableErrorDialogComponent> = this.dialog.open(TisSmartTableErrorDialogComponent, {
         width: "550px",
-        panelClass: [cx('simple-confirmation')],
+        panelClass: ['tis-simple-confirmation'],
         data: confirmBoxData,
         disableClose: false,
       });
